@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>TangramJS - Mixing with raster tiles</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet-src.js"></script>
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+   integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+   crossorigin=""></script>
+   <script src="https://unpkg.com/tangram/dist/tangram.debug.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        .legend {
+    		line-height: 18px;
+    		color: #555;
+		}
+		.legend i {
+		    width: 18px;
+		    height: 18px;
+		    float: left;
+		    margin-right: 8px;
+		    opacity: 0.7;
+		}
+		.layer-control {
+	        background: rgba(255, 255, 255, 0.85);
+	        padding: 0 10px;
+	        border-radius: 5px;
+	    }
+    </style>
+
+    <script type="text/javascript">
+		function getColor(d){
+        	if(d == '(100,1e+03]'){
+                    return '#7a0177';
+        	}else if(d == '(40,100]'){
+                    return '#c51b8a';
+            }else if(d == '(20,40]'){
+                    return '#f768a1';
+            }else if(d == '(10,20]'){
+                    return '#fa9fb5';                    
+            }else if(d == '(5,10]'){
+                    return '#fcc5c0';
+            }else if(d == '(0,5]'){
+                    return '#feebe2';                
+            }else{
+            	'#000';
+            }
+        };
+    </script>
+    <script type="text/javascript">
+        function getColorcomp(cat){
+        	if(25<=cat){
+				return '#de5600';
+			}else if((15<=cat)&&(cat<25)){
+				return '#ff7179';
+			}else if((5<=cat)&&(cat<15)){
+				return '#ffa4cc';
+			}else if((-5<=cat)&&(cat<5)){
+				return '#ffd9fe';
+			}else if((-15<=cat)&&(cat<-5)){
+				return '#ca93d5';
+			}else if((-25<=cat)&&(cat<-15)){
+				return '#8f52b1';
+			}else if(cat<-25){
+				return '#49108f';  
+            }else{
+            	'#000';
+            }
+        };
+    </script>
+</head>
+ 
+<body>
+    <div id="map"></div>
+    <script>
+        var center_point = [41.850033, -87.6500523]
+        var map = L.map('map', {
+          center: center_point,
+          zoom: 4	,
+        });
+        // ADD SCENE TO MAP
+        var layer = Tangram.leafletLayer({
+          scene: 'scene.yaml'
+        }).addTo(map);
+
+
+        //Add legend for M-lab
+        var legend = L.control({position: 'bottomright'})
+
+		legend.onAdd = function (map) {
+
+		    var div = L.DomUtil.create('div', 'info legend');
+		    var speeds = ['(100,1e+03]', '(40,100]', '(20,40]', '(10,20]', '(5,10]', '(0,5]'];
+
+		    // loop through our density intervals and generate a label with a colored square for each interval
+		    for (var i = 0; i < speeds.length; i++) {
+		        div.innerHTML +='<i style="background:' + getColor(speeds[i]) + '"></i> ' +speeds[i]+ '<br/>';
+		    }
+		    div.innerHTML +='<i style="background:' + '#000f' + '"></i> ' +'No data'+ '<br/>';
+
+		    return div;
+		};
+
+		//Add legend for comparison
+		var legend2 = L.control({position: 'bottomright'})
+
+		legend2.onAdd = function (map) {
+
+		    var div = L.DomUtil.create('div', 'info legend');
+		    var speeds_comp = [27, 18, 9, 3, -7, -17, -30];
+		    var labels = ["25+", "15 - 25","5 - 15","-5 - 5", "-15 - -5", "-25 - -15", "-25-"]
+
+		    // loop through our density intervals and generate a label with a colored square for each interval
+		    for (var i = 0; i < speeds_comp.length; i++) {
+		        div.innerHTML +='<i style="background:' + getColorcomp(speeds_comp[i]) + '"></i> ' +labels[i]+ '<br/>';
+		    }
+		    div.innerHTML +='<i style="background:' + '#000f' + '"></i> ' +'No data'+ '<br/>';
+
+		    return div;
+		};
+
+		legend.addTo(map);
+		legend2.addTo(map);
+
+		//add layer toggle for M-lab
+
+		var LayerToggleControl = L.Control.extend({
+	        options: {
+	          position: 'topright'
+	        },
+
+	        onAdd: function () {
+	          var container = L.DomUtil.create('div', 'layer-control');
+	          container.innerHTML = '<input id="layer_toggle" type="checkbox" checked="checked">477 data	'
+	          L.DomEvent.on(container, 'click', this.toggleOnClick);
+	          return container;
+	        },
+
+            toggleOnClick: function (e) {
+          		var showLayer = document.getElementById("layer_toggle").checked;
+
+				if (scene) {
+					scene.config.layers.counties.enabled = showLayer;
+					scene.updateConfig();
+				}
+			}
+
+
+      });
+
+		//Add layer toggle for comp
+		var LayerToggleControl1 = L.Control.extend({
+	        options: {
+	          position: 'topright'
+	        },
+
+	        onAdd: function () {
+	          var container = L.DomUtil.create('div', 'layer-control');
+	          container.innerHTML = '<input id="layer_toggle1" type="checkbox"> Comparison data'
+	          L.DomEvent.on(container, 'click', this.toggleOnClick);
+	          return container;
+	        },
+
+            toggleOnClick: function (e) {
+          		var showLayer = document.getElementById("layer_toggle1").checked;
+
+				if (scene) {
+					scene.config.layers.comp_counties.enabled = showLayer;
+					scene.updateConfig();
+				}
+			}
+
+
+      });
+
+      var toggleControl = new LayerToggleControl();
+      var toggleControl1 = new LayerToggleControl1();
+      map.addControl(toggleControl);
+      map.addControl(toggleControl1);
+
+            // ADD TANGRAMLOADED LISTENER
+      var scene = layer.scene;
+    </script>
+</body>
+</html>

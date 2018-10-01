@@ -1,0 +1,111 @@
+sources:
+    counties:
+        type: GeoJSON
+        url: https://storage.googleapis.com/thieme-us-query/477/477_data_and_geom.geojson
+    comp_counties: 
+        type: GeoJSON
+        url: https://storage.googleapis.com/thieme-us-query/477/477_mlab_comp.geojson
+    carto_nolabel:
+        type: Raster
+        url: http://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png
+styles:
+  _alpha_polygons:
+    base: polygons
+    blend: multiply
+layers:
+    basemap:
+        data: {source: carto_nolabel}
+        draw:
+          raster:
+            order: 0
+    counties:
+        enabled: true
+        data: {source: counties}    
+        draw:
+            lines:
+              color: |
+                function() {
+                  var cat = feature.med_dl;
+                  var color = cat == '(100,1e+03]' ? '#7a0177' :
+                              cat == '(40,100]' ? '#c51b8a':
+                              cat == '(20,40]' ? '#f768a1':
+                              cat == '(10,20]' ? '#fa9fb5':
+                              cat == '(5,10]' ? '#fcc5c0':
+                              cat == '[ 0, 5 )' ? '#feebe2':
+                              '#000'
+                  return color;
+                }
+
+              width: 1px
+              order: 1
+            polygons:
+              style: _alpha_polygons
+              order: 1
+              color: |
+                function() {
+                  var cat = feature.med_dl;
+                  var color = cat == '(100,1e+03]' ? '#7a0177' :
+                              cat == '(40,100]' ? '#c51b8a':
+                              cat == '(20,40]' ? '#f768a1':
+                              cat == '(10,20]' ? '#fa9fb5':
+                              cat == '(5,10]' ? '#fcc5c0':
+                              cat == '[ 0, 5 )' ? '#feebe2':
+                              '#000'
+                  return color;
+                }
+    comp_counties:
+        enabled: false
+        data: {source: comp_counties}
+        draw:
+            lines:
+              color: |
+                function() {
+                  var cat = feature.diff;
+                    if(cat===null){
+                        return '#fff';
+                    }else if(25<=cat){
+                        return '#de5600';
+                    }else if((15<=cat)&&(cat<25)){
+                        return '#ff7179';
+                    }else if((5<=cat)&&(cat<15)){
+                        return '#ffa4cc';
+                    }else if((-5<=cat)&&(cat<5)){
+                        return '#ffd9fe';
+                    }else if((-15<=cat)&&(cat<-5)){
+                        return '#ca93d5';
+                    }else if((-25<=cat)&&(cat<-15)){
+                        return '#8f52b1';
+                    }else if(cat<-25){
+                        return '#49108f';  
+                    }else{
+                        return '#fff';
+                    }
+                }
+              width: 1px
+              order: 1
+            polygons:
+              style: _alpha_polygons
+              order: 1
+              color: |
+                function() {
+                  var cat = feature.diff;
+                    if(cat===null){
+                        return '#fff';
+                    }else if(25<=cat){
+                        return '#de5600';
+                    }else if((15<=cat)&&(cat<25)){
+                        return '#ff7179';
+                    }else if((5<=cat)&&(cat<15)){
+                        return '#ffa4cc';
+                    }else if((-5<=cat)&&(cat<5)){
+                        return '#ffd9fe';
+                    }else if((-15<=cat)&&(cat<-5)){
+                        return '#ca93d5';
+                    }else if((-25<=cat)&&(cat<-15)){
+                        return '#8f52b1';
+                    }else if(cat<-25){
+                        return '#49108f';  
+                    }else{
+                        return '#fff';
+                    }
+                }
