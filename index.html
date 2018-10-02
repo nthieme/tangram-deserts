@@ -78,6 +78,25 @@
             }
         };
     </script>
+    <script type="text/javascript">
+        function getColormlab(d){
+            if(100<=cat){
+                return '#7a0177';
+            }else if((40<=cat)&&(cat<100)){
+                return '#c51b8a';
+            }else if((20<=cat)&&(cat<40)){
+                return '#f768a1';
+            }else if((10<=cat)&&(cat<20)){
+                return '#fa9fb5';
+            }else if((5<=cat)&&(cat<10)){
+                return '#fcc5c0';
+            }else if((0<=cat)&&(cat<5)){
+                return '#feebe2'; 
+            }else{
+                '#000';
+            }
+        };
+    </script>
 </head>
  
 <body>
@@ -141,7 +160,7 @@
 
 	        onAdd: function () {
 	          var container = L.DomUtil.create('div', 'layer-control');
-	          container.innerHTML = '<input id="layer_toggle" type="checkbox" checked="checked">477 data	'
+	          container.innerHTML = '<input id="layer_toggle" type="checkbox">477 data	'
 	          L.DomEvent.on(container, 'click', this.toggleOnClick);
 	          return container;
 	        },
@@ -183,10 +202,37 @@
 
       });
 
+        var LayerToggleControl2 = L.Control.extend({
+            options: {
+              position: 'topright'
+            },
+
+            onAdd: function () {
+              var container = L.DomUtil.create('div', 'layer-control');
+              container.innerHTML = '<input id="layer_toggle2" type="checkbox" checked="checked"> M-Lab data'
+              L.DomEvent.on(container, 'click', this.toggleOnClick);
+              return container;
+            },
+
+            toggleOnClick: function (e) {
+                var showLayer = document.getElementById("layer_toggle2").checked;
+
+                if (scene) {
+                    scene.config.layers.mlab_counties.enabled = showLayer;
+                    scene.updateConfig();
+                }
+            }
+
+
+      });
+
+      var toggleControl2 = new LayerToggleControl2();
       var toggleControl = new LayerToggleControl();
       var toggleControl1 = new LayerToggleControl1();
+      map.addControl(toggleControl2);
       map.addControl(toggleControl);
       map.addControl(toggleControl1);
+      
 
             // ADD TANGRAMLOADED LISTENER
       var scene = layer.scene;

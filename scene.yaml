@@ -5,9 +5,12 @@ sources:
     comp_counties: 
         type: GeoJSON
         url: https://storage.googleapis.com/thieme-us-query/477/477_mlab_comp.geojson
+    mlab_counties: 
+        type: GeoJSON
+        url: https://storage.googleapis.com/thieme-us-query/477/mlab_speeds.geojson
     carto_nolabel:
         type: Raster
-        url: http://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png
+        url: https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png
 styles:
   _alpha_polygons:
     base: polygons
@@ -19,7 +22,7 @@ layers:
           raster:
             order: 0
     counties:
-        enabled: true
+        enabled: false
         data: {source: counties}    
         draw:
             lines:
@@ -107,5 +110,57 @@ layers:
                         return '#49108f';  
                     }else{
                         return '#fff';
+                    }
+                }
+    mlab_counties:
+        enabled: true
+        data: {source: mlab_counties}
+        draw:
+            lines:
+              color: |
+                function(){
+                  var cat = feature.med_dl;
+                    if(cat===null){
+                        return '#fff';
+                    }else if(100<=cat){
+                        return '#7a0177';
+                    }else if((40<=cat)&&(cat<100)){
+                        return '#c51b8a';
+                    }else if((20<=cat)&&(cat<40)){
+                        return '#f768a1';
+                    }else if((10<=cat)&&(cat<20)){
+                        return '#fa9fb5';
+                    }else if((5<=cat)&&(cat<10)){
+                        return '#fcc5c0';
+                    }else if((0<=cat)&&(cat<5)){
+                        return '#feebe2'; 
+                    }else{
+                        '#fff';
+                    }
+                }
+              width: 1px
+              order: 1
+            polygons:
+              style: _alpha_polygons
+              order: 1
+              color: |
+                function(){
+                  var cat = feature.med_dl;
+                    if(cat===null){
+                        return '#fff';
+                    }else if(100<=cat){
+                        return '#7a0177';
+                    }else if((40<=cat)&&(cat<100)){
+                        return '#c51b8a';
+                    }else if((20<=cat)&&(cat<40)){
+                        return '#f768a1';
+                    }else if((10<=cat)&&(cat<20)){
+                        return '#fa9fb5';
+                    }else if((5<=cat)&&(cat<10)){
+                        return '#fcc5c0';
+                    }else if((0<=cat)&&(cat<5)){
+                        return '#feebe2'; 
+                    }else{
+                        '#fff';
                     }
                 }
