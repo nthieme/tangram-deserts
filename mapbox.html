@@ -71,7 +71,7 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/477_mapbox_data_la
       // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
       map.addSource("states", {
           type: "vector",
-          url: "mapbox://newamerica.ad18wy7x"
+          url: "mapbox://newamerica.2r79v4mv"
       });
 
       var expression = ["match", ["get", "GEOID"]];
@@ -91,7 +91,7 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/477_mapbox_data_la
           "id": "states-join",
           "type": "fill",
           "source": "states",
-          "source-layer": "SOTI_mapbox_census_layer-2r5hio",
+          "source-layer": "SOTI_mapbox_census_layer",
           "paint": {
               "fill-color": expression
           }
