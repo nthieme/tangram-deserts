@@ -8,8 +8,49 @@
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
     <style>
-        body { margin:0; padding:0; }
-        #map { position:absolute; top:0; bottom:0; width:100%; }
+      body { margin:0; padding:0; }
+      #map { position:absolute; top:0; bottom:0; width:100%; }
+      #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+      }
+
+      #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+        text-align: center;
+      }
+
+      #menu a:last-child {
+        border: none;
+      }
+
+      #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+      }
+
+      #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+      }
+
+      #menu a.active:hover {
+        background: #3074a4;
+      }
     </style>
 
     <!--LIBRARY STARTS-->
@@ -28,9 +69,29 @@
         }else if((0<=cat)&&(cat<5)){
             return '#feebe2'; 
         }else{
-            '#000';
+            '#000';        
         }
       };
+
+      function getColorcomp(cat){
+          if(25<=cat){
+        return '#de5600';
+      }else if((15<=cat)&&(cat<25)){
+        return '#ff7179';
+      }else if((5<=cat)&&(cat<15)){
+        return '#ffa4cc';
+      }else if((-5<=cat)&&(cat<5)){
+        return '#ffd9fe';
+      }else if((-15<=cat)&&(cat<-5)){
+        return '#ca93d5';
+      }else if((-25<=cat)&&(cat<-15)){
+        return '#8f52b1';
+      }else if(cat<-25){
+        return '#49108f';  
+            }else{
+              '#000';
+            }
+        };
 
       function getMax(arr, prop) {
         var max;
@@ -46,9 +107,8 @@
 </head>
 <body>
 
-
-<div id='map'>
-</div>
+<nav id="menu"></nav>
+<div id='map'></div>
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoibmV3YW1lcmljYSIsImEiOiIyM3ZnYUtrIn0.57fFgg_iM7S1wLH2GQC71g';
 var map = new mapboxgl.Map({
@@ -61,41 +121,129 @@ var map = new mapboxgl.Map({
 // Join local JSON data with vector tile geometry
 // USA unemployment rate in 2009
 // Source https://data.bls.gov/timeseries/LNS14000000
+var keys = ["speed_mlab", "speed_477", "speed_diff"];
+var toggleableLayerIds = keys;
+var active_map = "speed_mlab";
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    if(id==active_map){
+      link.className = 'active';
+    }else{
+      link.className = '';
+    }
+
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer+"_id", 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer+"_id", 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer+"_id", 'visibility', 'visible');
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+
+$.getJSON('https://storage.googleapis.com/thieme-us-query/477/data_layer_full.json', function(data) {
 
 
-$.getJSON('https://storage.googleapis.com/thieme-us-query/477/477_mapbox_data_layer.json', function(data) {
     //data is the JSON string
   map.on('load', function() {
-
-      // Add source for state polygons hosted on Mapbox, based on US Census Data:
-      // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
-      map.addSource("states", {
+     map.addSource("states", {
           type: "vector",
           url: "mapbox://newamerica.2r79v4mv"
       });
 
-      var expression = ["match", ["get", "GEOID"]];
+      var expression_speed_mlab = ["match", ["get", "GEOID"]];
+      var expression_speed_477 = ["match", ["get", "GEOID"]];
+      var expression_speed_diff = ["match", ["get", "GEOID"]];
 
-      // Calculate color for each state based on the unemployment rate
+
       data.forEach(function(row) {
-          var color =getColor(row["med_dl.x"]);
-          expression.push(row["GEOID"], color);
+          var color_mlab =getColor(row["speed_mlab"]);
+          var color_477 =getColor(row["speed_477"]);
+          var color_diff =getColorcomp(row["speed_diff"]);
+          if(color_mlab== undefined){
+            color_mlab="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
+          if(color_477== undefined){
+            color_477="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
+          if(color_diff== undefined){
+            color_diff="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
+          expression_speed_mlab.push(row["GEOID"], color_mlab);
+          expression_speed_477.push(row["GEOID"], color_477); 
+          expression_speed_diff.push(row["GEOID"], color_diff);
       });
 
       // Last value is the default, used where there is no data
       //
-      expression.push("rgba(0,0,0,0)");
+      expression_speed_mlab.push("rgba(0,0,0,0)");
+      expression_speed_477.push("rgba(0,0,0,0)");
+      expression_speed_diff.push("rgba(0,0,0,0)");
 
-      // Add layer from the vector tile source with data-driven style
-      map.addLayer({
-          "id": "states-join",
+
+            // Add layer from the vector tile source with data-driven style
+      keys.forEach(function(k){
+        if(k==active_map){
+          map.addLayer({
+          "id": k+"_id",
           "type": "fill",
           "source": "states",
           "source-layer": "SOTI_mapbox_census_layer",
+          "visibility": "visible",
           "paint": {
-              "fill-color": expression
+              "fill-color": eval("expression"+"_"+k)  
           }
       }, 'waterway-label');
+        }else{
+          map.addLayer({
+          "id": k+"_id",
+          "type": "fill",
+          "source": "states",
+          "source-layer": "SOTI_mapbox_census_layer",
+          "visibility": "none",
+          "paint": {
+              "fill-color": eval("expression"+"_"+k)  
+          }
+      }, 'waterway-label');
+          map.setLayoutProperty(k+"_id", 'visibility', 'none');
+        }
+
+      });
+
+    //trial
+   
+    //trial end
+
+      // Add source for state polygons hosted on Mapbox, based on US Census Data:
+      // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
+     
+
+      // Calculate color for each state based on the unemployment rate
+
+
   });
 
 });
