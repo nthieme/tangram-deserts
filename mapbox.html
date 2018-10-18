@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset='utf-8' />
-    <title>Join local JSON data with vector tile geometries</title>
+    <title>How fast is the internet in the U.S.?</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
@@ -51,6 +51,33 @@
       #menu a.active:hover {
         background: #3074a4;
       }
+      .map-overlay {
+        position: relative;
+        background: rgba(255, 255, 255, 0.8);
+        margin-right: 20px;
+        font-family: Arial, sans-serif;
+        overflow: auto;
+        border-radius: 3px;
+      }
+      .legend {
+        padding: 10px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        line-height: 18px;
+        margin-bottom: 40px;
+        display: inline-block;
+      }
+
+      .legend div{
+        display:table;
+      }
+
+      .legend-key {
+        display: inline-block;
+        border-radius: 20%;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+      }
     </style>
 
     <!--LIBRARY STARTS-->
@@ -93,6 +120,7 @@
             }
         };
 
+
       function getMax(arr, prop) {
         var max;
         for (var i=0 ; i<arr.length ; i++) {
@@ -101,6 +129,24 @@
         }
         return max;
       };
+
+      function createLegend(labels, colors, div_legend){
+        for (i = 0; i < labels.length; i++) {
+          var label = labels[i];
+          var color = colors[i];
+          var item = document.createElement('div');
+          var key = document.createElement('span');
+          key.className = 'legend-key';
+          key.style.backgroundColor = color;
+
+          var value = document.createElement('span');
+          value.innerHTML = label;
+          item.appendChild(key);
+          item.appendChild(value);
+          div_legend.append(item);
+        }
+      }
+
     </script>
 
     <!--LIBRARY ENDS-->
@@ -109,6 +155,8 @@
 
 <nav id="menu"></nav>
 <div id='map'></div>
+<div class='map-overlay legend initial' id='legend_diff'></div>
+
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoibmV3YW1lcmljYSIsImEiOiIyM3ZnYUtrIn0.57fFgg_iM7S1wLH2GQC71g';
 var map = new mapboxgl.Map({
@@ -124,6 +172,12 @@ var map = new mapboxgl.Map({
 var keys = ["speed_mlab", "speed_477", "speed_diff"];
 var toggleableLayerIds = keys;
 var active_map = "speed_mlab";
+var labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
+var colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
+
+var diff_labels = ["Greater than 25","15 to 25","5 to 15","-5 to 5","-15 to -5","-25 to -15", "Less than -25"];
+var diff_colors = ['#de5600', '#ff7179','#ffa4cc','#ffd9fe','#ca93d5','#8f52b1','#49108f'];
+
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
@@ -147,9 +201,27 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
 
         if (visibility === 'visible') {
             map.setLayoutProperty(clickedLayer+"_id", 'visibility', 'none');
+            var legend_to_remove = $("."+clickedLayer);
+            legend_to_remove.detach();
             this.className = '';
         } else {
             this.className = 'active';
+            var legend_div = document.createElement("div");
+
+            if((clickedLayer=="speed_477" || clickedLayer=="speed_mlab")){
+              legend_div.className ="map-overlay legend" +" "+ clickedLayer;
+              legend_div.id='legend_mbps';
+              console.log(curr_legend);
+              document.body.appendChild(legend_div);
+              var curr_legend = $("."+clickedLayer);
+              createLegend(labels, colors, curr_legend);
+            }else{
+              legend_div.className ="map-overlay legend speed_diff";
+              legend_div.id='legend_diff';
+              document.body.appendChild(legend_div);
+              var curr_legend = $("#legend_diff");
+              createLegend(diff_labels, diff_colors, curr_legend);
+            }
             map.setLayoutProperty(clickedLayer+"_id", 'visibility', 'visible');
         }
     };
@@ -157,6 +229,10 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     var layers = document.getElementById('menu');
     layers.appendChild(link);
 }
+
+var starting_map = $(".legend");
+starting_map.addClass(active_map);
+createLegend(labels, colors, starting_map);
 
 $.getJSON('https://storage.googleapis.com/thieme-us-query/477/data_layer_full.json', function(data) {
 
@@ -232,19 +308,8 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/data_layer_full.js
         }
 
       });
-
-    //trial
-   
-    //trial end
-
-      // Add source for state polygons hosted on Mapbox, based on US Census Data:
-      // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
-     
-
-      // Calculate color for each state based on the unemployment rate
-
-
   });
+
 
 });
 </script>
