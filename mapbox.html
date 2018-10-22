@@ -169,9 +169,10 @@ var map = new mapboxgl.Map({
 // Join local JSON data with vector tile geometry
 // USA unemployment rate in 2009
 // Source https://data.bls.gov/timeseries/LNS14000000
-var keys = ["speed_mlab", "speed_477", "speed_diff"];
+var keys = ["speed_477","speed_mlab", "speed_diff"];
 var toggleableLayerIds = keys;
-var active_map = "speed_mlab";
+var label_link = ["M-Lab data", "FCC's 477 data"," Difference"]
+var active_map = "speed_477";
 var labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
 var colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
 
@@ -190,10 +191,11 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
       link.className = '';
     }
 
-    link.textContent = id;
+    link.textContent = label_link[i];
+    link.id = id;
 
     link.onclick = function (e) {
-        var clickedLayer = this.textContent;
+        var clickedLayer = this.id;
         e.preventDefault();
         e.stopPropagation();
 
@@ -211,7 +213,6 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
             if((clickedLayer=="speed_477" || clickedLayer=="speed_mlab")){
               legend_div.className ="map-overlay legend" +" "+ clickedLayer;
               legend_div.id='legend_mbps';
-              console.log(curr_legend);
               document.body.appendChild(legend_div);
               var curr_legend = $("."+clickedLayer);
               createLegend(labels, colors, curr_legend);
@@ -234,85 +235,94 @@ var starting_map = $(".legend");
 starting_map.addClass(active_map);
 createLegend(labels, colors, starting_map);
 
-$.getJSON('https://storage.googleapis.com/thieme-us-query/477/data_layer_full.json', function(data) {
+$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
 
 
     //data is the JSON string
   map.on('load', function() {
-     map.addSource("states", {
-          type: "vector",
-          url: "mapbox://newamerica.2r79v4mv"
-      });
+   map.addSource("states", {
+        type: "vector",
+        url: "mapbox://newamerica.11qvqbyq"
+    });
 
-      var expression_speed_mlab = ["match", ["get", "GEOID"]];
-      var expression_speed_477 = ["match", ["get", "GEOID"]];
-      var expression_speed_diff = ["match", ["get", "GEOID"]];
-
-
-      data.forEach(function(row) {
-          var color_mlab =getColor(row["speed_mlab"]);
-          var color_477 =getColor(row["speed_477"]);
-          var color_diff =getColorcomp(row["speed_diff"]);
-          if(color_mlab== undefined){
-            color_mlab="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          if(color_477== undefined){
-            color_477="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          if(color_diff== undefined){
-            color_diff="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          expression_speed_mlab.push(row["GEOID"], color_mlab);
-          expression_speed_477.push(row["GEOID"], color_477); 
-          expression_speed_diff.push(row["GEOID"], color_diff);
-      });
-
-      // Last value is the default, used where there is no data
-      //
-      expression_speed_mlab.push("rgba(0,0,0,0)");
-      expression_speed_477.push("rgba(0,0,0,0)");
-      expression_speed_diff.push("rgba(0,0,0,0)");
+    var expression_speed_mlab = ["match", ["get", "zcta"]];
+    var expression_speed_477 = ["match", ["get", "zcta"]];
+    var expression_speed_diff = ["match", ["get", "zcta"]];
 
 
-            // Add layer from the vector tile source with data-driven style
-      keys.forEach(function(k){
-        if(k==active_map){
-          map.addLayer({
+    data.forEach(function(row) {
+      var color_mlab =getColor(row["speed_mlab"]);
+      var color_477 =getColor(row["speed_477"]);
+      var color_diff =getColorcomp(row["speed_diff"]);
+
+      if(color_mlab== undefined){
+        color_mlab="rgba(0,0,0,0)";
+      }else{
+        //don't change anything
+      }
+      if(color_477== undefined){
+        color_477="rgba(0,0,0,0)";
+      }else{
+        //don't change anything
+      }
+      if(color_diff== undefined){
+        color_diff="rgba(0,0,0,0)";
+      }else{
+        //don't change anything
+      }
+      expression_speed_mlab.push(row["zcta"], color_mlab);
+      expression_speed_477.push(row["zcta"], color_477); 
+      expression_speed_diff.push(row["zcta"], color_diff);
+    });
+    
+
+    // Last value is the default, used where there is no data
+    //
+    expression_speed_mlab.push("rgba(0,0,0,0)");
+    expression_speed_477.push("rgba(0,0,0,0)");
+    expression_speed_diff.push("rgba(0,0,0,0)");
+
+          // Add layer from the vector tile source with data-driven style
+    keys.forEach(function(k){
+
+      if(k==active_map){
+        map.addLayer({
           "id": k+"_id",
           "type": "fill",
           "source": "states",
-          "source-layer": "SOTI_mapbox_census_layer",
+          "source-layer": "full_speed_data_census_base_use",
           "visibility": "visible",
           "paint": {
               "fill-color": eval("expression"+"_"+k)  
           }
-      }, 'waterway-label');
-        }else{
-          map.addLayer({
-          "id": k+"_id",
-          "type": "fill",
-          "source": "states",
-          "source-layer": "SOTI_mapbox_census_layer",
-          "visibility": "none",
-          "paint": {
-              "fill-color": eval("expression"+"_"+k)  
-          }
-      }, 'waterway-label');
-          map.setLayoutProperty(k+"_id", 'visibility', 'none');
-        }
+        }, 'waterway-label');
+      }else{
+        map.addLayer({
+            "id": k+"_id",
+            "type": "fill",
+            "source": "states",
+            "source-layer": "full_speed_data_census_base_use",
+            "visibility": "none",
+            "paint": {
+                "fill-color": eval("expression"+"_"+k)  
+            }
+        }, 'waterway-label');
+      }
+    }); 
 
-      });
-  });
+    keys.forEach(function(k){
+      if(k!=active_map){
+        map.setLayoutProperty(k+"_id", 'visibility', 'none')
+      }
+    });
+
+  }); // closes map load
+}); //closes JSON load
 
 
-});
 </script>
+
+
 
 </body>
 </html>
