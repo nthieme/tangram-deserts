@@ -78,6 +78,10 @@
         height: 10px;
         margin-right: 5px;
       }
+      .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      }
     </style>
 
     <!--LIBRARY STARTS-->
@@ -169,10 +173,10 @@ var map = new mapboxgl.Map({
 // Join local JSON data with vector tile geometry
 // USA unemployment rate in 2009
 // Source https://data.bls.gov/timeseries/LNS14000000
-var keys = ["speed_477","speed_mlab", "speed_diff"];
+var keys = ["speed_mlab","speed_477" ,"speed_diff"];
 var toggleableLayerIds = keys;
 var label_link = ["M-Lab data", "FCC's 477 data"," Difference"]
-var active_map = "speed_477";
+var active_map = "speed_mlab";
 var labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
 var colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
 
@@ -315,6 +319,63 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zc
         map.setLayoutProperty(k+"_id", 'visibility', 'none')
       }
     });
+
+    //add story popups
+    map.addLayer({
+        "id": "places",
+        "type": "symbol",
+        "source": {
+            "type": "geojson",
+            "data": {
+                "type": "FeatureCollection",
+                "features": [{
+                    "type": "Feature",
+                    "properties": {
+                        "description": "<strong>North Dakota's Internet Exceptionalism</strong><p>The internet speeds in North Dakota look more like California's and New York's than the ones in neighboring Wyoming and Montana. <a href=\"file:///C:/Users/nickt/OneDrive/Documents/ND_blog.htm\" target=\"_blank\" title=\"Opens in a new window\">Click here to find out what makes them so different.</a> </p>",
+                        "icon": "library"
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-101.5649, 46.4178] 
+                    }                
+                  }]
+            }
+        },
+        "layout": {
+            "icon-image": "{icon}-15",
+            "icon-allow-overlap": true,
+            "icon-size":1.4
+        }
+    });
+
+    //make story popups work
+    map.on('click', 'places', function (e) {
+        var coordinates = e.features[0].geometry.coordinates.slice();
+        var description = e.features[0].properties.description;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(description)
+            .addTo(map);
+    });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    map.on('mouseenter', 'places', function () {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'places', function () {
+        map.getCanvas().style.cursor = '';
+    });
+
 
   }); // closes map load
 }); //closes JSON load
