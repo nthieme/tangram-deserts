@@ -1,3 +1,4 @@
+<!-- REMEMBER YOU:RE ADDING IN THE SECTION THAT LETS YOU FLIP BETWEEN HOUSES TO DO THAT YOU NEED TO ADD IN THE UPPER HOUSE SHAPEFILE AND SPLITOFF THE JSON -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,8 +22,19 @@
         border: 1px solid rgba(0,0,0,0.4);
         font-family: 'Open Sans', sans-serif;
       }
+    #zoom_menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 140px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+      }
 
-      #menu a {
+      .menu a {
         font-size: 13px;
         color: #404040;
         display: block;
@@ -34,21 +46,21 @@
         text-align: center;
       }
 
-      #menu a:last-child {
+      .menu a:last-child {
         border: none;
       }
 
-      #menu a:hover {
+      .menu a:hover {
         background-color: #f8f8f8;
         color: #404040;
       }
 
-      #menu a.active {
+      .menu a.active {
         background-color: #3887be;
         color: #ffffff;
       }
 
-      #menu a.active:hover {
+      .menu a.active:hover {
         background: #3074a4;
       }
       .map-overlay {
@@ -151,13 +163,96 @@
         }
       }
 
+
+    function createColorvector(data, data_name) {
+      var expression_speed_mlab = ["match", ["get", data_name]];
+      var expression_speed_477 = ["match", ["get", data_name]];
+      var expression_speed_diff = ["match", ["get", data_name]];
+
+      data.forEach(function(row){
+        if(row[data_name]===undefined){
+        //do nothing
+        }else{
+          var color_mlab =getColor(row["speed_mlab"]);
+          var color_477 =getColor(row["speed_477"]);
+          var color_diff =getColorcomp(row["speed_diff"]);
+
+          if(color_mlab== undefined){
+            color_mlab="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
+          if(color_477== undefined){
+            color_477="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
+          if(color_diff== undefined){
+            color_diff="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
+          expression_speed_mlab.push(row[data_name], color_mlab);
+          expression_speed_477.push(row[data_name], color_477); 
+          expression_speed_diff.push(row[data_name], color_diff);
+        }
+      });
+    
+
+      expression_speed_mlab.push("rgba(0,0,0,0)");
+      expression_speed_477.push("rgba(0,0,0,0)");
+      expression_speed_diff.push("rgba(0,0,0,0)");
+
+      return([expression_speed_mlab,expression_speed_477,expression_speed_diff])
+    }
+
+    function turnOffOtherMaps(current_map){
+      for(var i =0; i <zoom_names.length;i++){
+        for(var j = 0; j < keys.length; j++){
+          var map_name = zoom_names[i]+"_"+keys[j];
+          var map_pred = keys[j]
+          if(map_pred!=current_map){
+            map.setLayoutProperty(map_name+"_id", 'visibility', 'none')
+          }
+        }
+      }
+    }
+
+    function makeToggle(toggleIDs, active_level, id_name){
+
+      for (var i = 0; i < toggleIDs.length; i++) {
+      var id = toggleIDs[i];
+
+      var link = document.createElement('a');
+      link.href = '#';
+      if(id==active_level){
+        link.className = 'active';
+      }else{
+        link.className = '';
+      }
+
+      link.textContent = toggleIDs[i];
+        link.id = id;
+
+        var layers = document.getElementById(id_name);
+        layers.appendChild(link);
+      }
+
+  }
+    
+    
+
+
     </script>
 
     <!--LIBRARY ENDS-->
 </head>
 <body>
 
-<nav id="menu"></nav>
+<div id="div_menu">
+<nav id="menu" class="menu"></nav>
+<nav id ="zoom_menu" class="menu"></nav>
+</div>
 <div id='map'></div>
 <div class='map-overlay legend initial' id='legend_diff'></div>
 
@@ -167,21 +262,31 @@ var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/light-v9',
     center: [-99.9, 41.5],
-    zoom: 4
+    zoom: 3
 });
 
 // Join local JSON data with vector tile geometry
-// USA unemployment rate in 2009
-// Source https://data.bls.gov/timeseries/LNS14000000
-var keys = ["speed_mlab","speed_477" ,"speed_diff"];
-var toggleableLayerIds = keys;
-var label_link = ["M-Lab data", "FCC's 477 data"," Difference"]
-var active_map = "speed_mlab";
-var labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
-var colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
 
-var diff_labels = ["Greater than 25","15 to 25","5 to 15","-5 to 5","-15 to -5","-25 to -15", "Less than -25"];
-var diff_colors = ['#de5600', '#ff7179','#ffa4cc','#ffd9fe','#ca93d5','#8f52b1','#49108f'];
+var keys = ["speed_mlab","speed_477" ,"speed_diff"];
+var legend_grouping = {"speed_mlab":"legend_mbps", "speed_477":"legend_mbps", "speed_diff":"legend_diff"};
+var zoom_names = ["zcta","house_"];
+var data_names = ["zcta","house_num"];
+var zoomThreshold = 4 ;
+var toggleableLayerIds = keys;
+var label_link = ["M-Lab data", "FCC's 477 data"," Difference"];
+var label_leg_filt = ["State House","State Senate"];
+var active_zoom = "State House";
+var active_map = "speed_mlab";
+var speed_mlab_labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
+var speed_mlab_colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
+
+var speed_477_labels = speed_mlab_labels;
+var speed_477_colors = speed_mlab_colors;
+
+var speed_diff_labels = ["Greater than 25","15 to 25","5 to 15","-5 to 5","-15 to -5","-25 to -15", "Less than -25"];
+var speed_diff_colors = ['#de5600', '#ff7179','#ffa4cc','#ffd9fe','#ca93d5','#8f52b1','#49108f'];
+
+var zoomed = false;
 
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
@@ -199,35 +304,48 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     link.id = id;
 
     link.onclick = function (e) {
+      var zoom = map.getZoom();
+      if(zoom>zoomThreshold){
+        var pred = zoom_names[1];
+      }else{
+        var pred = zoom_names[0];
+      }
+
         var clickedLayer = this.id;
         e.preventDefault();
         e.stopPropagation();
 
-        var visibility = map.getLayoutProperty(clickedLayer+"_id", 'visibility');
+        var visibility = map.getLayoutProperty(pred+"_"+clickedLayer+"_id", 'visibility');
 
         if (visibility === 'visible') {
-            map.setLayoutProperty(clickedLayer+"_id", 'visibility', 'none');
-            var legend_to_remove = $("."+clickedLayer);
-            legend_to_remove.detach();
-            this.className = '';
+          //
         } else {
             this.className = 'active';
             var legend_div = document.createElement("div");
 
-            if((clickedLayer=="speed_477" || clickedLayer=="speed_mlab")){
+
               legend_div.className ="map-overlay legend" +" "+ clickedLayer;
-              legend_div.id='legend_mbps';
+              legend_div.id=legend_grouping[clickedLayer];
               document.body.appendChild(legend_div);
               var curr_legend = $("."+clickedLayer);
-              createLegend(labels, colors, curr_legend);
-            }else{
-              legend_div.className ="map-overlay legend speed_diff";
-              legend_div.id='legend_diff';
-              document.body.appendChild(legend_div);
-              var curr_legend = $("#legend_diff");
-              createLegend(diff_labels, diff_colors, curr_legend);
+              var to_make_inactive_div= $('div.map-overlay')
+        .empty();
+                createLegend(eval(clickedLayer+"_"+"labels"), eval(clickedLayer+"_"+"colors"), curr_legend);
+              $('div.map-overlay')
+                .filter(":empty")
+                .remove() 
+
+
+
+            turnOffOtherMaps(clickedLayer);
+      $('#div_menu a')
+        .filter(".active")
+        .not( "[id='"+clickedLayer+"']" )
+        .removeClass("active"); 
+
+      for(var j =0; j<zoom_names.length; j++){
+              map.setLayoutProperty(zoom_names[j]+"_"+clickedLayer+"_id", 'visibility', 'visible');
             }
-            map.setLayoutProperty(clickedLayer+"_id", 'visibility', 'visible');
         }
     };
 
@@ -235,90 +353,78 @@ for (var i = 0; i < toggleableLayerIds.length; i++) {
     layers.appendChild(link);
 }
 
+
+
 var starting_map = $(".legend");
 starting_map.addClass(active_map);
-createLegend(labels, colors, starting_map);
 
-$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
+createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), starting_map);
 
 
+
+//this is temp for the legislative districts stuff
+
+//$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
+  
+  $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_zcta_leg.json', function(data) {
+  
     //data is the JSON string
   map.on('load', function() {
-   map.addSource("states", {
+   map.addSource("legislative", {
+        type: "vector",
+    url: "mapbox://newamerica.7arz3f2z"
+   
+    });
+
+   map.addSource("county", {
         type: "vector",
         url: "mapbox://newamerica.11qvqbyq"
     });
 
-    var expression_speed_mlab = ["match", ["get", "zcta"]];
-    var expression_speed_477 = ["match", ["get", "zcta"]];
-    var expression_speed_diff = ["match", ["get", "zcta"]];
 
-
-    data.forEach(function(row) {
-      var color_mlab =getColor(row["speed_mlab"]);
-      var color_477 =getColor(row["speed_477"]);
-      var color_diff =getColorcomp(row["speed_diff"]);
-
-      if(color_mlab== undefined){
-        color_mlab="rgba(0,0,0,0)";
-      }else{
-        //don't change anything
-      }
-      if(color_477== undefined){
-        color_477="rgba(0,0,0,0)";
-      }else{
-        //don't change anything
-      }
-      if(color_diff== undefined){
-        color_diff="rgba(0,0,0,0)";
-      }else{
-        //don't change anything
-      }
-      expression_speed_mlab.push(row["zcta"], color_mlab);
-      expression_speed_477.push(row["zcta"], color_477); 
-      expression_speed_diff.push(row["zcta"], color_diff);
-    });
-    
-
-    // Last value is the default, used where there is no data
-    //
-    expression_speed_mlab.push("rgba(0,0,0,0)");
-    expression_speed_477.push("rgba(0,0,0,0)");
-    expression_speed_diff.push("rgba(0,0,0,0)");
+    var colorArray =[];
+    for(var i =0; i<zoom_names.length; i++){
+      colorArray.push(createColorvector(data[zoom_names[i]], data_names[i]));
+    }
 
           // Add layer from the vector tile source with data-driven style
-    keys.forEach(function(k){
+    for(var i =0; i <zoom_names.length;i++){
+      for(var j = 0; j < keys.length; j++){
+        
 
-      if(k==active_map){
-        map.addLayer({
-          "id": k+"_id",
-          "type": "fill",
-          "source": "states",
-          "source-layer": "full_speed_data_census_base_use",
-          "visibility": "visible",
-          "paint": {
-              "fill-color": eval("expression"+"_"+k)  
-          }
-        }, 'waterway-label');
-      }else{
-        map.addLayer({
-            "id": k+"_id",
-            "type": "fill",
-            "source": "states",
-            "source-layer": "full_speed_data_census_base_use",
-            "visibility": "none",
-            "paint": {
-                "fill-color": eval("expression"+"_"+k)  
-            }
-        }, 'waterway-label');
+        if(zoom_names[i]=="house_"){
+          map.addLayer({
+              "id": zoom_names[i]+"_"+keys[j]+"_id",
+              "type": "fill",
+              "source": "legislative",
+              "source-layer": "full_speed_data_census_leg-7upuu0",
+              'minzoom': zoomThreshold,
+              "visibility": "none",
+              "paint": {
+                  "fill-color": colorArray[i][j] 
+              }
+            }, 'waterway-label'
+           );
+        }else if (zoom_names[i]=="zcta"){
+          map.addLayer({
+              "id": zoom_names[i]+"_"+keys[j]+"_id",
+              "type": "fill",
+              "source": "county",
+              "source-layer": "full_speed_data_census_base_use",
+              'maxzoom': zoomThreshold,
+              "visibility": "none",
+              "paint": {
+                  "fill-color": colorArray[i][j] 
+              }
+            }, 'waterway-label'
+           );
+        }
+     
       }
-    }); 
+    }
 
-    keys.forEach(function(k){
-      if(k!=active_map){
-        map.setLayoutProperty(k+"_id", 'visibility', 'none')
-      }
-    });
+    turnOffOtherMaps(active_map);
+
 
     //add story popups
     map.addLayer({
@@ -374,6 +480,20 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zc
     // Change it back to a pointer when it leaves.
     map.on('mouseleave', 'places', function () {
         map.getCanvas().style.cursor = '';
+    });
+
+    map.on('zoom', () => {
+      var currentZoom = map.getZoom();
+      if ((currentZoom > zoomThreshold) && (zoomed==false)) {
+          makeToggle(label_leg_filt, active_zoom, "zoom_menu");
+          zoomed=true
+      } else if((currentZoom > zoomThreshold) && (zoomed==true)){
+        //
+      }else{
+          $('#zoom_menu').
+          empty();
+          zoomed=false
+      }
     });
 
 
