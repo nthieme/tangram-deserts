@@ -26,7 +26,7 @@
         background: #fff;
         position: absolute;
         z-index: 1;
-        top: 140px;
+        top: 160px;
         right: 10px;
         border-radius: 3px;
         width: 120px;
@@ -136,6 +136,24 @@
             }
         };
 
+      function getColorCounts(cat){
+        if(1000<=cat){
+            return '#7a0177';
+        }else if((400<=cat)&&(cat<1000)){
+            return '#c51b8a';
+        }else if((180<=cat)&&(cat<400)){
+            return '#f768a1';
+        }else if((40<=cat)&&(cat<180)){
+            return '#fa9fb5';
+        }else if((10<=cat)&&(cat<40)){
+            return '#fcc5c0';
+        }else if((0<=cat)&&(cat<10)){
+            return '#feebe2'; 
+        }else{
+            '#000';        
+        }
+      };
+
 
       function getMax(arr, prop) {
         var max;
@@ -168,6 +186,7 @@
       var expression_speed_mlab = ["match", ["get", data_name]];
       var expression_speed_477 = ["match", ["get", data_name]];
       var expression_speed_diff = ["match", ["get", data_name]];
+      var expression_speed_counts = ["match", ["get", data_name]];
 
       data.forEach(function(row){
         if(row[data_name]===undefined){
@@ -176,6 +195,7 @@
           var color_mlab =getColor(row["speed_mlab"]);
           var color_477 =getColor(row["speed_477"]);
           var color_diff =getColorcomp(row["speed_diff"]);
+          var color_counts =getColorCounts(row["counts"]);
 
           if(color_mlab== undefined){
             color_mlab="rgba(0,0,0,0)";
@@ -192,9 +212,15 @@
           }else{
             //don't change anything
           }
+          if(color_counts== undefined){
+            color_counts="rgba(0,0,0,0)";
+          }else{
+            //don't change anything
+          }
           expression_speed_mlab.push(row[data_name], color_mlab);
           expression_speed_477.push(row[data_name], color_477); 
           expression_speed_diff.push(row[data_name], color_diff);
+          expression_speed_counts.push(row[data_name], color_counts);
         }
       });
     
@@ -202,8 +228,9 @@
       expression_speed_mlab.push("rgba(0,0,0,0)");
       expression_speed_477.push("rgba(0,0,0,0)");
       expression_speed_diff.push("rgba(0,0,0,0)");
+      expression_speed_counts.push("rgba(0,0,0,0)");
 
-      return([expression_speed_mlab,expression_speed_477,expression_speed_diff])
+      return([expression_speed_mlab,expression_speed_477,expression_speed_diff,expression_speed_counts])
     }
 
     function turnOffOtherMaps(current_maps){
@@ -266,7 +293,7 @@
       }
      var keep_map=pred+"_"+prin
 
-      console.log(pred+"_"+prin+"_id");
+  
         var visibility = map.getLayoutProperty(keep_map+"_id", 'visibility');
 
         if (visibility === 'visible') {
@@ -338,13 +365,13 @@ var map = new mapboxgl.Map({
 
 // Join local JSON data with vector tile geometry
 
-var keys = ["speed_mlab","speed_477" ,"speed_diff"];
+var keys = ["speed_mlab","speed_477" ,"speed_diff", "speed_counts"];
 var legend_grouping = {"speed_mlab":"legend_mbps", "speed_477":"legend_mbps", "speed_diff":"legend_diff"};
 var zoom_names = ["zcta","state_house","state_senate"];
 var data_names = ["zcta","house_num","house_num"];
 var zoomThreshold = 4 ;
 var toggleableLayerIds = keys;
-var toggleableLayerNames = ["M-Lab data", "FCC's 477 data"," Difference"];
+var toggleableLayerNames = ["M-Lab data", "FCC's 477 data"," Difference", "Counts"];
 var label_leg_filt = ["state_house","state_senate"];
 var label_leg_filt_names = ["State House","State Senate"];
 var active_zoom = "state_house";
@@ -357,6 +384,10 @@ var speed_477_colors = speed_mlab_colors;
 
 var speed_diff_labels = ["Greater than 25","15 to 25","5 to 15","-5 to 5","-15 to -5","-25 to -15", "Less than -25"];
 var speed_diff_colors = ['#de5600', '#ff7179','#ffa4cc','#ffd9fe','#ca93d5','#8f52b1','#49108f'];
+
+var speed_counts_labels = ["Greater than 1000","400 to 1000","180 to 400","40 to 180","10 to 40","0 to 10"];
+var speed_counts_colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
+
 
 var zoomed = false;
 
@@ -375,7 +406,7 @@ createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), start
 
 //$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
   
-$.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_zcta_new.json', function(data) {
+$.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_zcta_counts.json', function(data) {
   var lower_json = [];
   var upper_json = [];
   for(var i =0; i < data["house_"].length; i++){
