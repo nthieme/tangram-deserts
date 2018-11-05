@@ -206,19 +206,22 @@
       return([expression_speed_mlab,expression_speed_477,expression_speed_diff])
     }
 
-    function turnOffOtherMaps(current_map){
+    function turnOffOtherMaps(current_maps){
       for(var i =0; i <zoom_names.length;i++){
         for(var j = 0; j < keys.length; j++){
           var map_name = zoom_names[i]+"_"+keys[j];
-          var map_pred = keys[j]
-          if(map_pred!=current_map){
+          if($.inArray(map_name, current_maps) <0){
+
             map.setLayoutProperty(map_name+"_id", 'visibility', 'none')
           }
         }
       }
+
     }
 
-    function makeToggle(toggleIDs, active_level, id_name){
+    
+
+    function makeToggle(toggleIDs,toggleableLayerNames, active_level, id_name,make_legend){
 
       for (var i = 0; i < toggleIDs.length; i++) {
       var id = toggleIDs[i];
@@ -231,14 +234,82 @@
         link.className = '';
       }
 
-      link.textContent = toggleIDs[i];
+      link.textContent = toggleableLayerNames[i];
         link.id = id;
+
+        link.onclick = function(){createToggleMechanics(this, make_legend)};
+
 
         var layers = document.getElementById(id_name);
         layers.appendChild(link);
       }
-
   }
+
+  function createToggleMechanics(this_Toggle, make_legend) {
+      var zoom = map.getZoom();
+      var clickedLayer = this_Toggle.id;
+
+      if(zoom>zoomThreshold){
+
+        if($.inArray(clickedLayer, keys) >-1){
+          var pred = $('#div_menu a').filter(".active").not("[id^=speed]").attr("id");
+          var prin =clickedLayer
+
+        }else{
+        var pred = clickedLayer;
+        var prin = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
+        active_zoom=clickedLayer
+        }
+      }else{
+        var pred = zoom_names[0];
+        var prin =clickedLayer
+      }
+     var keep_map=pred+"_"+prin
+
+      console.log(pred+"_"+prin+"_id");
+        var visibility = map.getLayoutProperty(keep_map+"_id", 'visibility');
+
+        if (visibility === 'visible') {
+          //
+        } else {
+          //set this link to active in the zoomed case
+
+
+            if(make_legend==true){
+            //this is the legend section
+              var legend_div = document.createElement("div");
+
+
+                legend_div.className ="map-overlay legend" +" "+ clickedLayer;
+                legend_div.id=legend_grouping[clickedLayer];
+                document.body.appendChild(legend_div);
+                var curr_legend = $("."+clickedLayer);
+                var to_make_inactive_div= $('div.map-overlay')
+          .empty();
+                  createLegend(eval(clickedLayer+"_"+"labels"), eval(clickedLayer+"_"+"colors"), curr_legend);
+                $('div.map-overlay')
+                  .filter(":empty")
+                  .remove() 
+            }
+            //up until here
+            
+              //this changes which link is active
+            turnOffOtherMaps(keep_map);
+            var clicked_nav=$(this_Toggle).parent().attr("id");
+      $("#"+clicked_nav+ " a")
+        .filter(".active")
+        .not( "[id='"+prin+"']" )
+        .removeClass("active"); 
+
+          //this makes the newly active layer visible
+      for(var j =0; j<zoom_names.length; j++){
+              map.setLayoutProperty(keep_map+"_id", 'visibility', 'visible');
+      }
+
+                  this_Toggle.className = 'active';
+        }
+
+    };
     
     
 
@@ -269,13 +340,14 @@ var map = new mapboxgl.Map({
 
 var keys = ["speed_mlab","speed_477" ,"speed_diff"];
 var legend_grouping = {"speed_mlab":"legend_mbps", "speed_477":"legend_mbps", "speed_diff":"legend_diff"};
-var zoom_names = ["zcta","house_"];
-var data_names = ["zcta","house_num"];
+var zoom_names = ["zcta","state_house","state_senate"];
+var data_names = ["zcta","house_num","house_num"];
 var zoomThreshold = 4 ;
 var toggleableLayerIds = keys;
-var label_link = ["M-Lab data", "FCC's 477 data"," Difference"];
-var label_leg_filt = ["State House","State Senate"];
-var active_zoom = "State House";
+var toggleableLayerNames = ["M-Lab data", "FCC's 477 data"," Difference"];
+var label_leg_filt = ["state_house","state_senate"];
+var label_leg_filt_names = ["State House","State Senate"];
+var active_zoom = "state_house";
 var active_map = "speed_mlab";
 var speed_mlab_labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
 var speed_mlab_colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
@@ -289,70 +361,8 @@ var speed_diff_colors = ['#de5600', '#ff7179','#ffa4cc','#ffd9fe','#ca93d5','#8f
 var zoomed = false;
 
 
-for (var i = 0; i < toggleableLayerIds.length; i++) {
-    var id = toggleableLayerIds[i];
 
-    var link = document.createElement('a');
-    link.href = '#';
-    if(id==active_map){
-      link.className = 'active';
-    }else{
-      link.className = '';
-    }
-
-    link.textContent = label_link[i];
-    link.id = id;
-
-    link.onclick = function (e) {
-      var zoom = map.getZoom();
-      if(zoom>zoomThreshold){
-        var pred = zoom_names[1];
-      }else{
-        var pred = zoom_names[0];
-      }
-
-        var clickedLayer = this.id;
-        e.preventDefault();
-        e.stopPropagation();
-
-        var visibility = map.getLayoutProperty(pred+"_"+clickedLayer+"_id", 'visibility');
-
-        if (visibility === 'visible') {
-          //
-        } else {
-            this.className = 'active';
-            var legend_div = document.createElement("div");
-
-
-              legend_div.className ="map-overlay legend" +" "+ clickedLayer;
-              legend_div.id=legend_grouping[clickedLayer];
-              document.body.appendChild(legend_div);
-              var curr_legend = $("."+clickedLayer);
-              var to_make_inactive_div= $('div.map-overlay')
-        .empty();
-                createLegend(eval(clickedLayer+"_"+"labels"), eval(clickedLayer+"_"+"colors"), curr_legend);
-              $('div.map-overlay')
-                .filter(":empty")
-                .remove() 
-
-
-
-            turnOffOtherMaps(clickedLayer);
-      $('#div_menu a')
-        .filter(".active")
-        .not( "[id='"+clickedLayer+"']" )
-        .removeClass("active"); 
-
-      for(var j =0; j<zoom_names.length; j++){
-              map.setLayoutProperty(zoom_names[j]+"_"+clickedLayer+"_id", 'visibility', 'visible');
-            }
-        }
-    };
-
-    var layers = document.getElementById('menu');
-    layers.appendChild(link);
-}
-
+makeToggle(toggleableLayerIds,toggleableLayerNames,active_map, 'menu',true)
 
 
 var starting_map = $(".legend");
@@ -361,20 +371,39 @@ starting_map.addClass(active_map);
 createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), starting_map);
 
 
-
 //this is temp for the legislative districts stuff
 
 //$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
   
-  $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_zcta_leg.json', function(data) {
+$.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_zcta_new.json', function(data) {
+  var lower_json = [];
+  var upper_json = [];
+  for(var i =0; i < data["house_"].length; i++){
+    if(data["house_"][i]["house"]=="lower"){
+      lower_json.push(data["house_"][i]);
+    }else if(data["house_"][i]["house"]=="upper"){
+      upper_json.push(data["house_"][i]);
+    }
+  }
+
+  data = {"zcta":data["zcta"], "state_house":lower_json, "state_senate":upper_json}
+
   
     //data is the JSON string
   map.on('load', function() {
-   map.addSource("legislative", {
+
+   map.addSource("legislative_lower_state", {
         type: "vector",
-    url: "mapbox://newamerica.7arz3f2z"
+        url: "mapbox://newamerica.3qz0q7mq"
    
     });
+
+  map.addSource("legislative_upper_state", {
+    type: "vector",
+    url: "mapbox://newamerica.5pslsmxo"
+   
+    });
+
 
    map.addSource("county", {
         type: "vector",
@@ -382,22 +411,36 @@ createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), start
     });
 
 
+
     var colorArray =[];
+
     for(var i =0; i<zoom_names.length; i++){
       colorArray.push(createColorvector(data[zoom_names[i]], data_names[i]));
     }
-
           // Add layer from the vector tile source with data-driven style
     for(var i =0; i <zoom_names.length;i++){
       for(var j = 0; j < keys.length; j++){
         
 
-        if(zoom_names[i]=="house_"){
+        if(zoom_names[i]=="state_house"){
           map.addLayer({
               "id": zoom_names[i]+"_"+keys[j]+"_id",
               "type": "fill",
-              "source": "legislative",
-              "source-layer": "full_speed_data_census_leg-7upuu0",
+              "source": "legislative_lower_state",
+              "source-layer": "full_speed_data_census_leg_low",
+              'minzoom': zoomThreshold,
+              "visibility": "none",
+              "paint": {
+                  "fill-color": colorArray[i][j] 
+              }
+            }, 'waterway-label'
+           );
+        }else if(zoom_names[i]=="state_senate"){
+          map.addLayer({
+              "id": zoom_names[i]+"_"+keys[j]+"_id",
+              "type": "fill",
+              "source": "legislative_upper_state",
+              "source-layer": "full_speed_data_census_leg_up",
               'minzoom': zoomThreshold,
               "visibility": "none",
               "paint": {
@@ -419,11 +462,13 @@ createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), start
             }, 'waterway-label'
            );
         }
-     
+
       }
     }
 
-    turnOffOtherMaps(active_map);
+
+    turnOffOtherMaps([zoom_names[0]+"_"+active_map, "state_house_speed_mlab"]);
+
 
 
     //add story popups
@@ -485,14 +530,20 @@ createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), start
     map.on('zoom', () => {
       var currentZoom = map.getZoom();
       if ((currentZoom > zoomThreshold) && (zoomed==false)) {
-          makeToggle(label_leg_filt, active_zoom, "zoom_menu");
+          makeToggle(label_leg_filt,label_leg_filt_names, active_zoom, "zoom_menu",false)
+          var curr_map_data = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
+          map.setLayoutProperty(active_zoom+"_"+curr_map_data+"_id", 'visibility', 'visible')
           zoomed=true
       } else if((currentZoom > zoomThreshold) && (zoomed==true)){
-        //
-      }else{
+
+      }else if((currentZoom<zoomThreshold)&&(zoomed==true)){
+          var curr_map_data = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
+          map.setLayoutProperty("zcta"+"_"+curr_map_data+"_id", 'visibility', 'visible')
           $('#zoom_menu').
           empty();
           zoomed=false
+      }else{
+
       }
     });
 
@@ -506,4 +557,4 @@ createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), start
 
 
 </body>
-</html>
+</html> 
