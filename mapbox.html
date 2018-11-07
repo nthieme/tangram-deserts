@@ -90,10 +90,26 @@
         height: 10px;
         margin-right: 5px;
       }
-      .mapboxgl-popup {
-        max-width: 400px;
-        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-      }
+.mapboxgl-popup {
+  max-width: 200px;
+}
+
+.mapboxgl-popup-content {
+  text-align: center;
+  font-family: 'Open Sans', sans-serif;
+}
+
+
+      .marker {
+  background-image: url('library-15.svg');
+  background-size: cover;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+
     </style>
 
     <!--LIBRARY STARTS-->
@@ -355,13 +371,72 @@
 <div class='map-overlay legend initial' id='legend_diff'></div>
 
 <script>
+	//map bounds 
+var bounds = [
+    [-191.527239, -10], // Southwest coordinates
+    [2.565, 71.388889]  // Northeast coordinates
+];
 mapboxgl.accessToken = 'pk.eyJ1IjoibmV3YW1lcmljYSIsImEiOiIyM3ZnYUtrIn0.57fFgg_iM7S1wLH2GQC71g';
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/light-v9',
     center: [-99.9, 41.5],
-    zoom: 3
+    maxBounds: bounds,
+    zoom: 2
 });
+
+//popup JSON
+var geojson_markers = {
+  type: 'FeatureCollection',
+  features: [{
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [-101.5649, 46.4178] 
+    },
+    properties: {
+      title: "North Dakota's Internet Exceptionalism",
+      description: "The internet speeds in North Dakota look more like California's and New York's than the ones in neighboring Wyoming and Montana. <a href=\"https://nthieme.github.io/tangram-deserts/ND_blog.htm\" target=\"_blank\" title=\"Opens in a new window\">Click here to find out what makes them so different.</a>",
+      icon: "library"
+    }
+  },{
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [-93.581543, 42.032974] 
+    },
+    properties: {
+      title: "The FCC says all of Iowa has access to broadband internet. Speed tests tell a different story.",
+      description: "Using M-Lab data as a comparison point, Sam Bloch of The New Food Economy writes about <a href=\"https://newfoodeconomy.org/rural-iowa-broadband-data-fcc\" target=\"_blank\" title=\"Opens in a new window\"> the discrepancy between what the FCC says is happening in Iowa and what users are experiencing.</a>",
+      icon: "library"
+    }
+  },{
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [-98.4842, 39.0119] 
+    },
+    properties: {
+      title: "Broadband Speed: FCC Map Vs. Experience on the Ground",
+      description: "Looking at speeds in Kansas and Maine, Brian Whitacre, Sharon Strover, and Colin Rhinesmith critique the FCC's broadband map of the U.S., using M-Lab data <a href=\"https://www.dailyyonder.com/broadband-speed-fcc-map-vs-experience-ground/2018/07/25/26583\" target=\"_blank\" title=\"Opens in a new window\">as an alternative source of internet speeds.</a>",
+      icon: "library"
+    }
+  },{
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [-66.5901, 19.4]
+
+    },
+    properties: {
+      title: 'Puerto Rico’s Internet Problems Go from Bad to Worse',
+      description: "In September 2017, Puerto Rico's internet speeds were at their peak, having finally improved after nearly a decade of stagnation. Then Hurricane Maria hit and speeds have yet to recover. <a href=\"https://www.pbs.org/wgbh/nova/article/puerto-rico-hurricane-maria-internet\" target=\"_blank\" title=\"Opens in a new window\">Here's the story of what happened with Puerto Rico's internet before and after Maria",
+      icon: "library"
+    }
+  }]
+};
+
+
 
 // Join local JSON data with vector tile geometry
 
@@ -503,32 +578,7 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_zcta_co
 
 
     //add story popups
-    map.addLayer({
-        "id": "places",
-        "type": "symbol",
-        "source": {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": [{
-                    "type": "Feature",
-                    "properties": {
-                        "description": "<strong>North Dakota's Internet Exceptionalism</strong><p>The internet speeds in North Dakota look more like California's and New York's than the ones in neighboring Wyoming and Montana. <a href=\"https://nthieme.github.io/tangram-deserts/ND_blog.htm\" target=\"_blank\" title=\"Opens in a new window\">Click here to find out what makes them so different.</a> </p>",
-                        "icon": "library"
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [-101.5649, 46.4178] 
-                    }                
-                  }]
-            }
-        },
-        "layout": {
-            "icon-image": "{icon}-15",
-            "icon-allow-overlap": true,
-            "icon-size":1.4
-        }
-    });
+ 
 
     //make story popups work
     map.on('click', 'places', function (e) {
@@ -577,6 +627,22 @@ $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_zcta_co
 
       }
     });
+
+
+
+    geojson_markers.features.forEach(function(marker) {
+
+  // create a HTML element for each feature
+  var el = document.createElement('div');
+  el.className = 'marker';
+
+  // make a marker for each feature and add to the map
+  new mapboxgl.Marker(el)
+  .setLngLat(marker.geometry.coordinates)
+.setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+  .setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>'))
+  .addTo(map);
+});
 
 
   }); // closes map load
