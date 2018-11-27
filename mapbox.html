@@ -1,6 +1,6 @@
-<!-- REMEMBER YOU:RE ADDING IN THE SECTION THAT LETS YOU FLIP BETWEEN HOUSES TO DO THAT YOU NEED TO ADD IN THE UPPER HOUSE SHAPEFILE AND SPLITOFF THE JSON -->
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8' />
     <title>How fast is the internet in the U.S.?</title>
@@ -9,9 +9,9 @@
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
     <style>
-      body { margin:0; padding:0; }
-      #map { position:absolute; top:0; bottom:0; width:100%; }
-      #menu {
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+        #menu {
         background: #fff;
         position: absolute;
         z-index: 1;
@@ -21,8 +21,8 @@
         width: 120px;
         border: 1px solid rgba(0,0,0,0.4);
         font-family: 'Open Sans', sans-serif;
-      }
-    #zoom_menu {
+        }
+        #zoom_menu {
         background: #fff;
         position: absolute;
         z-index: 1;
@@ -32,9 +32,8 @@
         width: 120px;
         border: 1px solid rgba(0,0,0,0.4);
         font-family: 'Open Sans', sans-serif;
-      }
-
-      .menu a {
+        }
+        .menu a {
         font-size: 13px;
         color: #404040;
         display: block;
@@ -44,614 +43,628 @@
         text-decoration: none;
         border-bottom: 1px solid rgba(0,0,0,0.25);
         text-align: center;
-      }
-
-      .menu a:last-child {
+        }
+        .menu a:last-child {
         border: none;
-      }
-
-      .menu a:hover {
+        }
+        .menu a:hover {
         background-color: #f8f8f8;
         color: #404040;
-      }
-
-      .menu a.active {
+        }
+        .menu a.active {
         background-color: #3887be;
         color: #ffffff;
-      }
-
-      .menu a.active:hover {
+        }
+        .menu a.active:hover {
         background: #3074a4;
-      }
-      .map-overlay {
+        }
+        .map-overlay {
         position: relative;
         background: rgba(255, 255, 255, 0.8);
         margin-right: 20px;
         font-family: Arial, sans-serif;
         overflow: auto;
         border-radius: 3px;
-      }
-      .legend {
+        }
+        .legend {
         padding: 10px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         line-height: 18px;
         margin-bottom: 40px;
         display: inline-block;
-      }
-
-      .legend div{
+        }
+        .legend div{
         display:table;
-      }
-
-      .legend-key {
+        }
+        .legend-key {
         display: inline-block;
         border-radius: 20%;
         width: 10px;
         height: 10px;
         margin-right: 5px;
-      }
-.mapboxgl-popup {
-  max-width: 200px;
-}
-
-.mapboxgl-popup-content {
-  text-align: center;
-  font-family: 'Open Sans', sans-serif;
-}
-
-
-      .marker {
-  background-image: url('library-15.svg');
-  background-size: cover;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-
-    </style>
-
+        }
+        .mapboxgl-popup {
+        max-width: 200px;
+        }
+        .mapboxgl-popup-content {
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+        }
+        .marker {
+        background-image: url('library-15.svg');
+        background-size: cover;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        }
+        .map-overlay_1 {
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        position: absolute;
+        width: 10%;
+        top: 0;
+        left: 0;
+        padding: 10px;
+        }
+        .map-overlay_1 .map-overlay-inner {
+        background-color: #fff;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow:0 1px 2px rgba(0, 0, 0, 0.20);
+        border-radius: 3px;
+        padding: 10px;
+        margin-bottom: 10px;
+        }
+        .map-overlay_1 h2 {
+        line-height: 24px;
+        display: block;
+        margin: 0 0 10px;
+        }
+        .map-overlay_1 .legend .bar {
+        height: 10px;
+        width: 100%;
+        background: linear-gradient(to right, #FCA107, #7F3121);
+        }
+        .map-overlay_1 input {
+        background-color: transparent;
+        display: inline-block;
+        width: 100%;
+        position: relative;
+        margin: 0;
+        cursor: ew-resize;
+        }
+        </style>
     <!--LIBRARY STARTS-->
-     <script type="text/javascript">
-      function getColor(cat){
-        if(100<=cat){
+    <script type="text/javascript">
+    function getColor(cat) {
+        if (100 <= cat) {
             return '#7a0177';
-        }else if((40<=cat)&&(cat<100)){
+        } else if ((40 <= cat) && (cat < 100)) {
             return '#c51b8a';
-        }else if((20<=cat)&&(cat<40)){
+        } else if ((20 <= cat) && (cat < 40)) {
             return '#f768a1';
-        }else if((10<=cat)&&(cat<20)){
+        } else if ((10 <= cat) && (cat < 20)) {
             return '#fa9fb5';
-        }else if((5<=cat)&&(cat<10)){
+        } else if ((5 <= cat) && (cat < 10)) {
             return '#fcc5c0';
-        }else if((0<=cat)&&(cat<5)){
-            return '#feebe2'; 
-        }else{
-            '#000';        
+        } else if ((0 <= cat) && (cat < 5)) {
+            return '#feebe2';
+        } else {
+            '#000';
         }
-      };
+    };
 
-      function getColorcomp(cat){
-          if(25<=cat){
-        return '#de5600';
-      }else if((15<=cat)&&(cat<25)){
-        return '#ff7179';
-      }else if((5<=cat)&&(cat<15)){
-        return '#ffa4cc';
-      }else if((-5<=cat)&&(cat<5)){
-        return '#ffd9fe';
-      }else if((-15<=cat)&&(cat<-5)){
-        return '#ca93d5';
-      }else if((-25<=cat)&&(cat<-15)){
-        return '#8f52b1';
-      }else if(cat<-25){
-        return '#49108f';  
-            }else{
-              '#000';
-            }
-        };
+    function getColorcomp(cat) {
+        if (25 <= cat) {
+            return '#de5600';
+        } else if ((15 <= cat) && (cat < 25)) {
+            return '#ff7179';
+        } else if ((5 <= cat) && (cat < 15)) {
+            return '#ffa4cc';
+        } else if ((-5 <= cat) && (cat < 5)) {
+            return '#ffd9fe';
+        } else if ((-15 <= cat) && (cat < -5)) {
+            return '#ca93d5';
+        } else if ((-25 <= cat) && (cat < -15)) {
+            return '#8f52b1';
+        } else if (cat < -25) {
+            return '#49108f';
+        } else {
+            '#000';
+        }
+    };
 
-      function getColorCounts(cat){
-        if(1000<=cat){
+    function getColorCounts(cat) {
+        if (1000 <= cat) {
             return '#7a0177';
-        }else if((400<=cat)&&(cat<1000)){
+        } else if ((400 <= cat) && (cat < 1000)) {
             return '#c51b8a';
-        }else if((180<=cat)&&(cat<400)){
+        } else if ((180 <= cat) && (cat < 400)) {
             return '#f768a1';
-        }else if((40<=cat)&&(cat<180)){
+        } else if ((40 <= cat) && (cat < 180)) {
             return '#fa9fb5';
-        }else if((10<=cat)&&(cat<40)){
+        } else if ((10 <= cat) && (cat < 40)) {
             return '#fcc5c0';
-        }else if((0<=cat)&&(cat<10)){
-            return '#feebe2'; 
-        }else{
-            '#000';        
+        } else if ((0 <= cat) && (cat < 10)) {
+            return '#feebe2';
+        } else {
+            '#000';
         }
-      };
+    };
 
-
-      function getMax(arr, prop) {
+    function getMax(arr, prop) {
         var max;
-        for (var i=0 ; i<arr.length ; i++) {
+        for (var i = 0; i < arr.length; i++) {
             if (!max || parseInt(arr[i][prop]) > parseInt(max[prop]))
                 max = arr[i];
         }
         return max;
-      };
+    };
 
-      function createLegend(labels, colors, div_legend){
+    function createLegend(labels, colors, div_legend) {
         for (i = 0; i < labels.length; i++) {
-          var label = labels[i];
-          var color = colors[i];
-          var item = document.createElement('div');
-          var key = document.createElement('span');
-          key.className = 'legend-key';
-          key.style.backgroundColor = color;
-
-          var value = document.createElement('span');
-          value.innerHTML = label;
-          item.appendChild(key);
-          item.appendChild(value);
-          div_legend.append(item);
+            var label = labels[i];
+            var color = colors[i];
+            var item = document.createElement('div');
+            var key = document.createElement('span');
+            key.className = 'legend-key';
+            key.style.backgroundColor = color;
+            var value = document.createElement('span');
+            value.innerHTML = label;
+            item.appendChild(key);
+            item.appendChild(value);
+            div_legend.append(item);
         }
-      }
+    }
 
+    function createSlider(location) {
+        var input_div = document.createElement('div');
+        var h3 = document.createElement("h3");
+        var label = document.createElement('label');
+        var input = document.createElement('input');
+
+        input_div.className = 'map-overlay-inner';
+        h3.innerHTML = "FCC data range";
+        label.id = "time_chunks";
+        input.id = "slider";
+        input.type = "range";
+        input.min = 0;
+        input.max = FCC_time_chunks.length - 1;
+        input.step = 1;
+        input.value = 0;
+
+        input_div.appendChild(h3);
+        input_div.appendChild(label);
+        input_div.appendChild(input);
+        location.append(input_div);
+        createSliderAction();
+    }
+
+    function createSliderAction() {
+        document.getElementById('time_chunks').textContent = FCC_time_names[0]; //you'll eventually have to set this to the active time
+
+        document.getElementById('slider').addEventListener('input', function(time_chunk) {
+
+            console.log(map.style._layers);
+            var slid_ind = document.getElementById('slider').value
+            document.getElementById('time_chunks').textContent = FCC_time_names[slid_ind];
+            var pred = $('#div_menu a').filter(".active").attr("id");
+            var lab_county = FCC_time_chunks[slid_ind] + "_" + "county" + "_" + pred;
+            var lab_zoom = FCC_time_chunks[slid_ind] + "_" + active_zoom + "_" + pred;
+            map.setLayoutProperty(lab_county + "_id", 'visibility', 'visible');
+            map.setLayoutProperty(lab_zoom + "_id", 'visibility', 'visible');
+            turnOffOtherMaps([lab_county, lab_zoom]);
+
+
+
+        });
+    }
 
     function createColorvector(data, data_name) {
-      var expression_speed_mlab = ["match", ["get", data_name]];
-      var expression_speed_477 = ["match", ["get", data_name]];
-      var expression_speed_diff = ["match", ["get", data_name]];
-      var expression_speed_counts = ["match", ["get", data_name]];
+        var expression_speed_mlab = ["match", ["get", data_name]];
+        var expression_speed_477 = ["match", ["get", data_name]];
+        var expression_speed_diff = ["match", ["get", data_name]];
+        var expression_speed_counts = ["match", ["get", data_name]];
+        data.forEach(function(row) {
+            if (row[data_name] === undefined) {
+                //do nothing
+            } else {
+                var color_mlab = getColor(row["speed_mlab"]);
+                var color_477 = getColor(row["speed_477"]);
+                var color_diff = getColorcomp(row["speed_diff"]);
+                var color_counts = getColorCounts(row["counts"]);
+                if (color_mlab == undefined) {
+                    color_mlab = "rgba(0,0,0,0)";
+                } else {
+                    //don't change anything
+                }
+                if (color_477 == undefined) {
+                    color_477 = "rgba(0,0,0,0)";
+                } else {
+                    //don't change anything
+                }
+                if (color_diff == undefined) {
+                    color_diff = "rgba(0,0,0,0)";
+                } else {
+                    //don't change anything
+                }
+                if (color_counts == undefined) {
+                    color_counts = "rgba(0,0,0,0)";
+                } else {
+                    //don't change anything
+                }
+                expression_speed_mlab.push(row[data_name], color_mlab);
+                expression_speed_477.push(row[data_name], color_477);
+                expression_speed_diff.push(row[data_name], color_diff);
+                expression_speed_counts.push(row[data_name], color_counts);
+            }
+        });
 
-      data.forEach(function(row){
-        if(row[data_name]===undefined){
-        //do nothing
-        }else{
-          var color_mlab =getColor(row["speed_mlab"]);
-          var color_477 =getColor(row["speed_477"]);
-          var color_diff =getColorcomp(row["speed_diff"]);
-          var color_counts =getColorCounts(row["counts"]);
-
-          if(color_mlab== undefined){
-            color_mlab="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          if(color_477== undefined){
-            color_477="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          if(color_diff== undefined){
-            color_diff="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          if(color_counts== undefined){
-            color_counts="rgba(0,0,0,0)";
-          }else{
-            //don't change anything
-          }
-          expression_speed_mlab.push(row[data_name], color_mlab);
-          expression_speed_477.push(row[data_name], color_477); 
-          expression_speed_diff.push(row[data_name], color_diff);
-          expression_speed_counts.push(row[data_name], color_counts);
-        }
-      });
-    
-
-      expression_speed_mlab.push("rgba(0,0,0,0)");
-      expression_speed_477.push("rgba(0,0,0,0)");
-      expression_speed_diff.push("rgba(0,0,0,0)");
-      expression_speed_counts.push("rgba(0,0,0,0)");
-
-      return([expression_speed_mlab,expression_speed_477,expression_speed_diff,expression_speed_counts])
+        expression_speed_mlab.push("rgba(0,0,0,0)");
+        expression_speed_477.push("rgba(0,0,0,0)");
+        expression_speed_diff.push("rgba(0,0,0,0)");
+        expression_speed_counts.push("rgba(0,0,0,0)");
+        return ([expression_speed_mlab, expression_speed_477, expression_speed_diff, expression_speed_counts])
     }
 
-    function turnOffOtherMaps(current_maps){
-      for(var i =0; i <zoom_names.length;i++){
-        for(var j = 0; j < keys.length; j++){
-          var map_name = zoom_names[i]+"_"+keys[j];
-          if($.inArray(map_name, current_maps) <0){
-
-            map.setLayoutProperty(map_name+"_id", 'visibility', 'none')
-          }
+    function turnOffOtherMaps(current_maps) {
+        for (var k = 0; k < FCC_time_chunks.length; k++) {
+            for (var i = 0; i < zoom_names.length; i++) {
+                for (var j = 0; j < keys.length; j++) {
+                    var map_name = FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j]
+                    console.log(map_name);
+                    console.log(current_maps);
+                    if ($.inArray(map_name, current_maps) < 0) {
+                        map.setLayoutProperty(map_name + "_id", 'visibility', 'none')
+                    }
+                }
+            }
         }
-      }
-
     }
 
-    
-
-    function makeToggle(toggleIDs,toggleableLayerNames, active_level, id_name,make_legend){
-
-      for (var i = 0; i < toggleIDs.length; i++) {
-      var id = toggleIDs[i];
-
-      var link = document.createElement('a');
-      link.href = '#';
-      if(id==active_level){
-        link.className = 'active';
-      }else{
-        link.className = '';
-      }
-
-      link.textContent = toggleableLayerNames[i];
-        link.id = id;
-
-        link.onclick = function(){createToggleMechanics(this, make_legend)};
-
-
-        var layers = document.getElementById(id_name);
-        layers.appendChild(link);
-      }
-  }
-
-  function createToggleMechanics(this_Toggle, make_legend) {
-      var zoom = map.getZoom();
-      var clickedLayer = this_Toggle.id;
-
-      if(zoom>zoomThreshold){
-
-        if($.inArray(clickedLayer, keys) >-1){
-          var pred = $('#div_menu a').filter(".active").not("[id^=speed]").attr("id");
-          var prin =clickedLayer
-
-        }else{
-        var pred = clickedLayer;
-        var prin = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
-        active_zoom=clickedLayer
+    function makeToggle(toggleIDs, toggleableLayerNames, active_level, id_name, make_legend) {
+        for (var i = 0; i < toggleIDs.length; i++) {
+            var id = toggleIDs[i];
+            var link = document.createElement('a');
+            link.href = '#';
+            if (id == active_level) {
+                link.className = 'active';
+            } else {
+                link.className = '';
+            }
+            link.textContent = toggleableLayerNames[i];
+            link.id = id;
+            link.onclick = function() { createToggleMechanics(this, make_legend) };
+            var layers = document.getElementById(id_name);
+            layers.appendChild(link);
         }
-      }else{
-        var pred = zoom_names[0];
-        var prin =clickedLayer
-      }
-     var keep_map=pred+"_"+prin
+    }
 
-  
-        var visibility = map.getLayoutProperty(keep_map+"_id", 'visibility');
+    function createToggleMechanics(this_Toggle, make_legend) {
+        var zoom = map.getZoom();
+        var clickedLayer = this_Toggle.id;
+        date_ind = document.getElementById('slider').value
+        var date = FCC_time_chunks[date_ind];
+        if (zoom > zoomThreshold) {
 
-        if (visibility === 'visible') {
-          //
+            if ($.inArray(clickedLayer, keys) > -1) {
+
+                var pred = $('#div_menu a').filter(".active").not("[id^=speed]").attr("id");
+                var prin = clickedLayer
+            } else {
+                var pred = clickedLayer;
+                var prin = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
+                active_zoom = clickedLayer
+            }
         } else {
-          //set this link to active in the zoomed case
+            var pred = zoom_names[0];
+            var prin = clickedLayer
+        }
+        var keep_map = date + "_" + pred + "_" + prin
+        console.log(keep_map)
 
-
-            if(make_legend==true){
-            //this is the legend section
-              var legend_div = document.createElement("div");
-
-
-                legend_div.className ="map-overlay legend" +" "+ clickedLayer;
-                legend_div.id=legend_grouping[clickedLayer];
-                document.body.appendChild(legend_div);
-                var curr_legend = $("."+clickedLayer);
-                var to_make_inactive_div= $('div.map-overlay')
-          .empty();
-                  createLegend(eval(clickedLayer+"_"+"labels"), eval(clickedLayer+"_"+"colors"), curr_legend);
+        var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
+        if (visibility === 'visible') {
+            //
+        } else {
+            //set this link to active in the zoomed case
+            if (make_legend == true) {
+                //this is the legend section
+                var legend_div = document.createElement("div");
+                legend_div.className = "map-overlay legend" + " " + clickedLayer;
+                legend_div.id = legend_grouping[clickedLayer];
+                $(".map-overlay_1").append(legend_div);
+                var curr_legend = $("." + clickedLayer);
+                var to_make_inactive_div = $('div.map-overlay')
+                    .empty();
+                var to_make_inactive_div = $('div.map-overlay-inner')
+                    .empty();
+                createLegend(eval(clickedLayer + "_" + "labels"), eval(clickedLayer + "_" + "colors"), curr_legend);
                 $('div.map-overlay')
-                  .filter(":empty")
-                  .remove() 
+                    .filter(":empty")
+                    .remove()
+                $('div.map-overlay-inner')
+                    .filter(":empty")
+                    .remove()
+                createSlider(map_div);
             }
             //up until here
-            
-              //this changes which link is active
+            //this changes which link is active
             turnOffOtherMaps(keep_map);
-            var clicked_nav=$(this_Toggle).parent().attr("id");
-      $("#"+clicked_nav+ " a")
-        .filter(".active")
-        .not( "[id='"+prin+"']" )
-        .removeClass("active"); 
-
-          //this makes the newly active layer visible
-      for(var j =0; j<zoom_names.length; j++){
-              map.setLayoutProperty(keep_map+"_id", 'visibility', 'visible');
-      }
-
-                  this_Toggle.className = 'active';
+            var clicked_nav = $(this_Toggle).parent().attr("id");
+            $("#" + clicked_nav + " a")
+                .filter(".active")
+                .not("[id='" + prin + "']")
+                .removeClass("active");
+            //this makes the newly active layer visible
+            for (var j = 0; j < zoom_names.length; j++) {
+                map.setLayoutProperty(keep_map + "_id", 'visibility', 'visible');
+            }
+            this_Toggle.className = 'active';
         }
-
     };
-    
-    
-
-
     </script>
-
     <!--LIBRARY ENDS-->
 </head>
+
 <body>
-
-<div id="div_menu">
-<nav id="menu" class="menu"></nav>
-<nav id ="zoom_menu" class="menu"></nav>
-</div>
-<div id='map'></div>
-<div class='map-overlay legend initial' id='legend_diff'></div>
-
-<script>
-	//map bounds 
-var bounds = [
-    [-191.527239, -10], // Southwest coordinates
-    [2.565, 71.388889]  // Northeast coordinates
-];
-mapboxgl.accessToken = 'pk.eyJ1IjoibmV3YW1lcmljYSIsImEiOiIyM3ZnYUtrIn0.57fFgg_iM7S1wLH2GQC71g';
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/light-v9',
-    center: [-99.9, 41.5],
-    maxBounds: bounds,
-    zoom: 2
-});
-
-//popup JSON
-var geojson_markers = {
-  type: 'FeatureCollection',
-  features: [{
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [-101.5649, 46.4178] 
-    },
-    properties: {
-      title: "North Dakota's Internet Exceptionalism",
-      description: "The internet speeds in North Dakota look more like California's and New York's than the ones in neighboring Wyoming and Montana. <a href=\"https://nthieme.github.io/tangram-deserts/ND_blog.htm\" target=\"_blank\" title=\"Opens in a new window\">Click here to find out what makes them so different.</a>",
-      icon: "library"
-    }
-  },{
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [-93.581543, 42.032974] 
-    },
-    properties: {
-      title: "The FCC says all of Iowa has access to broadband internet. Speed tests tell a different story.",
-      description: "Using M-Lab data as a comparison point, Sam Bloch of The New Food Economy writes about <a href=\"https://newfoodeconomy.org/rural-iowa-broadband-data-fcc\" target=\"_blank\" title=\"Opens in a new window\"> the discrepancy between what the FCC says is happening in Iowa and what users are experiencing.</a>",
-      icon: "library"
-    }
-  },{
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [-98.4842, 39.0119] 
-    },
-    properties: {
-      title: "Broadband Speed: FCC Map Vs. Experience on the Ground",
-      description: "Looking at speeds in Kansas and Maine, Brian Whitacre, Sharon Strover, and Colin Rhinesmith critique the FCC's broadband map of the U.S., using M-Lab data <a href=\"https://www.dailyyonder.com/broadband-speed-fcc-map-vs-experience-ground/2018/07/25/26583\" target=\"_blank\" title=\"Opens in a new window\">as an alternative source of internet speeds.</a>",
-      icon: "library"
-    }
-  },{
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [-66.5901, 19.4]
-
-    },
-    properties: {
-      title: 'Puerto Rico’s Internet Problems Go from Bad to Worse',
-      description: "In September 2017, Puerto Rico's internet speeds were at their peak, having finally improved after nearly a decade of stagnation. Then Hurricane Maria hit and speeds have yet to recover. <a href=\"https://www.pbs.org/wgbh/nova/article/puerto-rico-hurricane-maria-internet\" target=\"_blank\" title=\"Opens in a new window\">Here's the story of what happened with Puerto Rico's internet before and after Maria",
-      icon: "library"
-    }
-  }]
-};
-
-
-
-// Join local JSON data with vector tile geometry
-
-var keys = ["speed_mlab","speed_477" ,"speed_diff", "speed_counts"];
-var legend_grouping = {"speed_mlab":"legend_mbps", "speed_477":"legend_mbps", "speed_diff":"legend_diff"};
-var zoom_names = ["zcta","state_house","state_senate"];
-var data_names = ["zcta","house_num","house_num"];
-var zoomThreshold = 4 ;
-var toggleableLayerIds = keys;
-var toggleableLayerNames = ["M-Lab data", "FCC's 477 data"," Difference", "Counts"];
-var label_leg_filt = ["state_house","state_senate"];
-var label_leg_filt_names = ["State House","State Senate"];
-var active_zoom = "state_house";
-var active_map = "speed_mlab";
-var speed_mlab_labels = ["Greater than 100","40 to 100","20 to 40","10 to 20","5 to 10","0 to 5"];
-var speed_mlab_colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
-
-var speed_477_labels = speed_mlab_labels;
-var speed_477_colors = speed_mlab_colors;
-
-var speed_diff_labels = ["Greater than 25","15 to 25","5 to 15","-5 to 5","-15 to -5","-25 to -15", "Less than -25"];
-var speed_diff_colors = ['#de5600', '#ff7179','#ffa4cc','#ffd9fe','#ca93d5','#8f52b1','#49108f'];
-
-var speed_counts_labels = ["Greater than 1000","400 to 1000","180 to 400","40 to 180","10 to 40","0 to 10"];
-var speed_counts_colors =['#7a0177','#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0',  '#feebe2'];
-
-
-var zoomed = false;
-
-
-
-makeToggle(toggleableLayerIds,toggleableLayerNames,active_map, 'menu',true)
-
-
-var starting_map = $(".legend");
-starting_map.addClass(active_map);
-
-createLegend(eval(active_map+"_"+"labels"), eval(active_map+"_"+"colors"), starting_map);
-
-
-//this is temp for the legislative districts stuff
-
-//$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
-  
-$.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_zcta_counts.json', function(data) {
-  var lower_json = [];
-  var upper_json = [];
-  for(var i =0; i < data["house_"].length; i++){
-    if(data["house_"][i]["house"]=="lower"){
-      lower_json.push(data["house_"][i]);
-    }else if(data["house_"][i]["house"]=="upper"){
-      upper_json.push(data["house_"][i]);
-    }
-  }
-
-  data = {"zcta":data["zcta"], "state_house":lower_json, "state_senate":upper_json}
-
-  
-    //data is the JSON string
-  map.on('load', function() {
-
-   map.addSource("legislative_lower_state", {
-        type: "vector",
-        url: "mapbox://newamerica.3qz0q7mq"
-   
+    <div id="div_menu">
+        <nav id="menu" class="menu"></nav>
+        <nav id="zoom_menu" class="menu"></nav>
+    </div>
+    <div id='map'></div>
+    <div class='map-overlay_1'>
+        <div class='map-overlay legend initial' id='legend_diff'><h3>Legend</h3>
+        </div>
+    </div>
+    <script>
+    //map bounds
+    var bounds = [
+        [-191.527239, -10], // Southwest coordinates
+        [2.565, 71.388889] // Northeast coordinates
+    ];
+    mapboxgl.accessToken = 'pk.eyJ1IjoibmV3YW1lcmljYSIsImEiOiIyM3ZnYUtrIn0.57fFgg_iM7S1wLH2GQC71g';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v9',
+        center: [-99.9, 41.5],
+        maxBounds: bounds,
+        zoom: 2
     });
+    //popup JSON
+    var geojson_markers = {
+        type: 'FeatureCollection',
+        features: [{
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [-101.5649, 46.4178]
+            },
+            properties: {
+                title: "North Dakota's Internet Exceptionalism",
+                description: "The internet speeds in North Dakota look more like California's and New York's than the ones in neighboring Wyoming and Montana. <a href=\"https://nthieme.github.io/tangram-deserts/ND_blog.htm\" target=\"_blank\" title=\"Opens in a new window\">Click here to find out what makes them so different.</a>",
+                icon: "library"
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [-93.581543, 42.032974]
+            },
+            properties: {
+                title: "The FCC says all of Iowa has access to broadband internet. Speed tests tell a different story.",
+                description: "Using M-Lab data as a comparison point, Sam Bloch of The New Food Economy writes about <a href=\"https://newfoodeconomy.org/rural-iowa-broadband-data-fcc\" target=\"_blank\" title=\"Opens in a new window\"> the discrepancy between what the FCC says is happening in Iowa and what users are experiencing.</a>",
+                icon: "library"
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [-98.4842, 39.0119]
+            },
+            properties: {
+                title: "Broadband Speed: FCC Map Vs. Experience on the Ground",
+                description: "Looking at speeds in Kansas and Maine, Brian Whitacre, Sharon Strover, and Colin Rhinesmith critique the FCC's broadband map of the U.S., using M-Lab data <a href=\"https://www.dailyyonder.com/broadband-speed-fcc-map-vs-experience-ground/2018/07/25/26583\" target=\"_blank\" title=\"Opens in a new window\">as an alternative source of internet speeds.</a>",
+                icon: "library"
+            }
+        }, {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [-66.5901, 19.4]
+            },
+            properties: {
+                title: 'Puerto Rico’s Internet Problems Go from Bad to Worse',
+                description: "In September 2017, Puerto Rico's internet speeds were at their peak, having finally improved after nearly a decade of stagnation. Then Hurricane Maria hit and speeds have yet to recover. <a href=\"https://www.pbs.org/wgbh/nova/article/puerto-rico-hurricane-maria-internet\" target=\"_blank\" title=\"Opens in a new window\">Here's the story of what happened with Puerto Rico's internet before and after Maria",
+                icon: "library"
+            }
+        }]
+    };
+    // Join local JSON data with vector tile geometry
+    var keys = ["speed_mlab", "speed_477", "speed_diff", "speed_counts"];
+    var legend_grouping = { "speed_mlab": "legend_mbps", "speed_477": "legend_mbps", "speed_diff": "legend_diff" };
+    var zoom_names = ["county", "state_house", "state_senate"];
+    var data_names = ["county", "house_num", "house_num"];
+    var zoomThreshold = 4;
+    var toggleableLayerIds = keys;
+    var toggleableLayerNames = ["M-Lab data", "FCC's 477 data", " Difference", "Counts"];
+    var label_leg_filt = ["state_house", "state_senate"];
+    var label_leg_filt_names = ["State House", "State Senate"];
+    var active_zoom = "state_house";
+    var active_map = "speed_mlab";
+    var speed_mlab_labels = ["Greater than 100", "40 to 100", "20 to 40", "10 to 20", "5 to 10", "0 to 5"];
+    var speed_mlab_colors = ['#7a0177', '#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0', '#feebe2'];
+    var FCC_time_chunks = ["dec_14", "jun_15", "dec_15", "jun_16", "dec_16", "jun_17"];
+    var FCC_time_names = ["Dec 14", "Jun 15", "Dec 15", "Jun 16", "Dec 16", "Jun 17"];
+    var speed_477_labels = speed_mlab_labels;
+    var speed_477_colors = speed_mlab_colors;
+    var speed_diff_labels = ["Greater than 25", "15 to 25", "5 to 15", "-5 to 5", "-15 to -5", "-25 to -15", "Less than -25"];
+    var speed_diff_colors = ['#de5600', '#ff7179', '#ffa4cc', '#ffd9fe', '#ca93d5', '#8f52b1', '#49108f'];
+    var speed_counts_labels = ["Greater than 1000", "400 to 1000", "180 to 400", "40 to 180", "10 to 40", "0 to 10"];
+    var speed_counts_colors = ['#7a0177', '#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0', '#feebe2'];
+    var zoomed = false;
+    makeToggle(toggleableLayerIds, toggleableLayerNames, active_map, 'menu', true)
+    var starting_map = $(".legend");
+    var map_div = $(".map-overlay_1");
+    starting_map.addClass(active_map);
+    createLegend(eval(active_map + "_" + "labels"), eval(active_map + "_" + "colors"), starting_map);
+    createSlider(map_div);
 
-  map.addSource("legislative_upper_state", {
-    type: "vector",
-    url: "mapbox://newamerica.5pslsmxo"
-   
-    });
+    //this is temp for the legislative districts stuff
+    //$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
 
-
-   map.addSource("county", {
-        type: "vector",
-        url: "mapbox://newamerica.11qvqbyq"
-    });
-
-
-
-    var colorArray =[];
-
-    for(var i =0; i<zoom_names.length; i++){
-      colorArray.push(createColorvector(data[zoom_names[i]], data_names[i]));
-    }
-          // Add layer from the vector tile source with data-driven style
-    for(var i =0; i <zoom_names.length;i++){
-      for(var j = 0; j < keys.length; j++){
-        
-
-        if(zoom_names[i]=="state_house"){
-          map.addLayer({
-              "id": zoom_names[i]+"_"+keys[j]+"_id",
-              "type": "fill",
-              "source": "legislative_lower_state",
-              "source-layer": "full_speed_data_census_leg_low",
-              'minzoom': zoomThreshold,
-              "visibility": "none",
-              "paint": {
-                  "fill-color": colorArray[i][j] 
-              }
-            }, 'waterway-label'
-           );
-        }else if(zoom_names[i]=="state_senate"){
-          map.addLayer({
-              "id": zoom_names[i]+"_"+keys[j]+"_id",
-              "type": "fill",
-              "source": "legislative_upper_state",
-              "source-layer": "full_speed_data_census_leg_up",
-              'minzoom': zoomThreshold,
-              "visibility": "none",
-              "paint": {
-                  "fill-color": colorArray[i][j] 
-              }
-            }, 'waterway-label'
-           );
-        }else if (zoom_names[i]=="zcta"){
-          map.addLayer({
-              "id": zoom_names[i]+"_"+keys[j]+"_id",
-              "type": "fill",
-              "source": "county",
-              "source-layer": "full_speed_data_census_base_use",
-              'maxzoom': zoomThreshold,
-              "visibility": "none",
-              "paint": {
-                  "fill-color": colorArray[i][j] 
-              }
-            }, 'waterway-label'
-           );
+    $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_county_counts_years.json', function(data) {
+        var lower_json = [];
+        var upper_json = [];
+        for (var i = 0; i < data["house_"].length; i++) {
+            if (data["house_"][i]["house"] == "lower") {
+                lower_json.push(data["house_"][i]);
+            } else if (data["house_"][i]["house"] == "upper") {
+                upper_json.push(data["house_"][i]);
+            }
         }
+        data = { "county": data["county"], "state_house": lower_json, "state_senate": upper_json }
+        //data is the JSON string
+        map.on('load', function() {
+            map.addSource("legislative_lower_state", {
+                type: "vector",
+                url: "mapbox://newamerica.3qz0q7mq"
 
-      }
-    }
+            });
+            map.addSource("legislative_upper_state", {
+                type: "vector",
+                url: "mapbox://newamerica.5pslsmxo"
 
-
-    turnOffOtherMaps([zoom_names[0]+"_"+active_map, "state_house_speed_mlab"]);
-
-
-
-    //add story popups
- 
-
-    //make story popups work
-    map.on('click', 'places', function (e) {
-        var coordinates = e.features[0].geometry.coordinates.slice();
-        var description = e.features[0].properties.description;
-
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-
-        new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(description)
-            .addTo(map);
-    });
-
-    // Change the cursor to a pointer when the mouse is over the places layer.
-    map.on('mouseenter', 'places', function () {
-        map.getCanvas().style.cursor = 'pointer';
-    });
-
-    // Change it back to a pointer when it leaves.
-    map.on('mouseleave', 'places', function () {
-        map.getCanvas().style.cursor = '';
-    });
-
-    map.on('zoom', () => {
-      var currentZoom = map.getZoom();
-      if ((currentZoom > zoomThreshold) && (zoomed==false)) {
-          makeToggle(label_leg_filt,label_leg_filt_names, active_zoom, "zoom_menu",false)
-          var curr_map_data = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
-          map.setLayoutProperty(active_zoom+"_"+curr_map_data+"_id", 'visibility', 'visible')
-          zoomed=true
-      } else if((currentZoom > zoomThreshold) && (zoomed==true)){
-
-      }else if((currentZoom<zoomThreshold)&&(zoomed==true)){
-          var curr_map_data = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
-          map.setLayoutProperty("zcta"+"_"+curr_map_data+"_id", 'visibility', 'visible')
-          $('#zoom_menu').
-          empty();
-          zoomed=false
-      }else{
-
-      }
-    });
+            });
+            map.addSource("county", {
+                type: "vector",
+                url: "mapbox://newamerica.biy2zq2m"
+            });
 
 
+            var colorArrayTime = [];
+            for (var j = 0; j < FCC_time_chunks.length; j++) {
 
-    geojson_markers.features.forEach(function(marker) {
+                var filtered_house = data["state_house"].filter(function(entry) { return entry["date_range"] == FCC_time_chunks[j]; });
+                var filtered_senate = data["state_senate"].filter(function(entry) { return entry["date_range"] == FCC_time_chunks[j]; });
+                var filtered_county = data["county"].filter(function(entry) { return entry["date_range"] == FCC_time_chunks[j]; });
+                var data_filtered = { "county": filtered_county, "state_house": filtered_house, "state_senate": filtered_senate }
+                var colorArray = [];
+                for (var i = 0; i < zoom_names.length; i++) {
+                    colorArray.push(createColorvector(data_filtered[zoom_names[i]], data_names[i]));
+                }
 
-  // create a HTML element for each feature
-  var el = document.createElement('div');
-  el.className = 'marker';
+                colorArrayTime.push(colorArray)
+            }
 
-  // make a marker for each feature and add to the map
-  new mapboxgl.Marker(el)
-  .setLngLat(marker.geometry.coordinates)
-.setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-  .setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>'))
-  .addTo(map);
-});
+            //next thing to do is change these names in a way that doesn't break everything
+            // Add layer from the vector tile source with data-driven style
+            for (var k = 0; k < FCC_time_chunks.length; k++) {
+                for (var i = 0; i < zoom_names.length; i++) {
+                    for (var j = 0; j < keys.length; j++) {
+                        if (zoom_names[i] == "state_house") {
+                            map.addLayer({
+                                "id": FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j] + "_id",
+                                "type": "fill",
+                                "source": "legislative_lower_state",
+                                "source-layer": "full_speed_data_census_leg_low",
+                                'minzoom': zoomThreshold,
+                                "visibility": "none",
+                                "paint": {
+                                    "fill-color": colorArrayTime[k][i][j]
+                                }
+                            }, 'waterway-label');
+                        } else if (zoom_names[i] == "state_senate") {
+                            map.addLayer({
+                                "id": FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j] + "_id",
+                                "type": "fill",
+                                "source": "legislative_upper_state",
+                                "source-layer": "full_speed_data_census_leg_up",
+                                'minzoom': zoomThreshold,
+                                "visibility": "none",
+                                "paint": {
+                                    "fill-color": colorArrayTime[k][i][j]
+                                }
+                            }, 'waterway-label');
+                        } else if (zoom_names[i] == "county") {
+                            map.addLayer({
+                                "id": FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j] + "_id",
+                                "type": "fill",
+                                "source": "county",
+                                "source-layer": "full_speed_data_census_base_use",
+                                'maxzoom': zoomThreshold,
+                                "visibility": "none",
+                                "paint": {
+                                    "fill-color": colorArrayTime[k][i][j]
+                                }
+                            }, 'waterway-label');
+                        }
+
+                    }
+                }
+            }
+
+            turnOffOtherMaps([FCC_time_chunks[0] + "_" + zoom_names[0] + "_" + active_map, "jun_14_state_house_speed_mlab"]);
+            //add story popups
+
+            //make story popups work
+            map.on('click', 'places', function(e) {
+                var coordinates = e.features[0].geometry.coordinates.slice();
+                var description = e.features[0].properties.description;
+                // Ensure that if the map is zoomed out such that multiple
+                // copies of the feature are visible, the popup appears
+                // over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(description)
+                    .addTo(map);
+            });
+            // Change the cursor to a pointer when the mouse is over the places layer.
+            map.on('mouseenter', 'places', function() {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', 'places', function() {
+                map.getCanvas().style.cursor = '';
+            });
+            map.on('zoom', () => {
+                var currentZoom = map.getZoom();
+                var slid_ind = document.getElementById('slider').value
+                var date = FCC_time_chunks[slid_ind];
+
+                if ((currentZoom > zoomThreshold) && (zoomed == false)) {
+                    makeToggle(label_leg_filt, label_leg_filt_names, active_zoom, "zoom_menu", false)
+                    var curr_map_data = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
+                    map.setLayoutProperty(date + "_" + active_zoom + "_" + curr_map_data + "_id", 'visibility', 'visible')
+                    zoomed = true
+                } else if ((currentZoom > zoomThreshold) && (zoomed == true)) {} else if ((currentZoom < zoomThreshold) && (zoomed == true)) {
+                    var curr_map_data = $('#div_menu a').filter(".active").filter("[id^=speed]").attr("id");
+                    map.setLayoutProperty(date + "_" + "county" + "_" + curr_map_data + "_id", 'visibility', 'visible')
+                    $('#zoom_menu').
+                    empty();
+                    zoomed = false
+                } else {}
+            });
+            geojson_markers.features.forEach(function(marker) {
+                // create a HTML element for each feature
+                var el = document.createElement('div');
+                el.className = 'marker';
+                // make a marker for each feature and add to the map
+                new mapboxgl.Marker(el)
+                    .setLngLat(marker.geometry.coordinates)
+                    .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+                        .setHTML('<h3>' + marker.properties.title + '</h3><p>' + marker.properties.description + '</p>'))
+                    .addTo(map);
+            });
 
 
-  }); // closes map load
-}); //closes JSON load
 
 
-</script>
-
-
-
+        }); // closes map load
+    }); //closes JSON load
+    </script>
 </body>
-</html> 
+
+</html>
