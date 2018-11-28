@@ -133,8 +133,9 @@
         cursor: ew-resize;
         }
         </style>
-    <!--LIBRARY STARTS-->
+    <!--Library starts here-->
     <script type="text/javascript">
+    	//these three functions define the color schemes for the maps. 
     function getColor(cat) {
         if (100 <= cat) {
             return '#7a0177';
@@ -191,6 +192,7 @@
         }
     };
 
+    //simple helped functions for calculating maximums
     function getMax(arr, prop) {
         var max;
         for (var i = 0; i < arr.length; i++) {
@@ -200,6 +202,8 @@
         return max;
     };
 
+    //creates the color legend html object and the stylization for the maps. it relies on colors specified in the variable definition code, not on the colors that are specified in the color scheme functions above. 
+    //that means that when the scheme needs to change, it needs to be updated in both places
     function createLegend(labels, colors, div_legend) {
         for (i = 0; i < labels.length; i++) {
             var label = labels[i];
@@ -216,7 +220,8 @@
         }
     }
 
-    function createSlider(location) {
+    //creates the html object for the date slider and calls the function that gives that slider functionality. Could be updated to create sliders for other variables fairly simply.
+    function createSlider(location, slide_val) {
         var input_div = document.createElement('div');
         var h3 = document.createElement("h3");
         var label = document.createElement('label');
@@ -230,23 +235,22 @@
         input.min = 0;
         input.max = FCC_time_chunks.length - 1;
         input.step = 1;
-        input.value = 0;
-
+        input.value = slide_val;
         input_div.appendChild(h3);
         input_div.appendChild(label);
         input_div.appendChild(input);
         location.append(input_div);
+        document.getElementById('time_chunks').textContent = FCC_time_names[slide_val];
+
         createSliderAction();
     }
 
+    //adds functionality to an html slider. never called outside of "createSlider"
     function createSliderAction() {
-        document.getElementById('time_chunks').textContent = FCC_time_names[0]; //you'll eventually have to set this to the active time
 
         document.getElementById('slider').addEventListener('input', function(time_chunk) {
 
-            console.log(map.style._layers);
-            var slid_ind = document.getElementById('slider').value
-            document.getElementById('time_chunks').textContent = FCC_time_names[slid_ind];
+            var slid_ind = document.getElementById('slider').value;
             var pred = $('#div_menu a').filter(".active").attr("id");
             var lab_county = FCC_time_chunks[slid_ind] + "_" + "county" + "_" + pred;
             var lab_zoom = FCC_time_chunks[slid_ind] + "_" + active_zoom + "_" + pred;
@@ -254,11 +258,11 @@
             map.setLayoutProperty(lab_zoom + "_id", 'visibility', 'visible');
             turnOffOtherMaps([lab_county, lab_zoom]);
 
-
-
         });
     }
 
+    //creates the data-driven colors of the map. It's pretty hard-coded so whenever new variable types to display are added this needs to be updated. It doesn't though, need to be updated when filters
+    //like date or region are added.
     function createColorvector(data, data_name) {
         var expression_speed_mlab = ["match", ["get", data_name]];
         var expression_speed_477 = ["match", ["get", data_name]];
@@ -306,13 +310,13 @@
         return ([expression_speed_mlab, expression_speed_477, expression_speed_diff, expression_speed_counts])
     }
 
+    //this function makes invisible data layers that aren't provided as input. That's the trick of how this app styles the map.
     function turnOffOtherMaps(current_maps) {
         for (var k = 0; k < FCC_time_chunks.length; k++) {
             for (var i = 0; i < zoom_names.length; i++) {
                 for (var j = 0; j < keys.length; j++) {
                     var map_name = FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j]
-                    console.log(map_name);
-                    console.log(current_maps);
+
                     if ($.inArray(map_name, current_maps) < 0) {
                         map.setLayoutProperty(map_name + "_id", 'visibility', 'none')
                     }
@@ -321,6 +325,7 @@
         }
     }
 
+    //creates the html toggle bars that appear on the right of the map
     function makeToggle(toggleIDs, toggleableLayerNames, active_level, id_name, make_legend) {
         for (var i = 0; i < toggleIDs.length; i++) {
             var id = toggleIDs[i];
@@ -339,6 +344,7 @@
         }
     }
 
+    //similar to the two functions used to create the slider, the html object and the mechanics of the object are created by two separate functions. This creates the mechanics
     function createToggleMechanics(this_Toggle, make_legend) {
         var zoom = map.getZoom();
         var clickedLayer = this_Toggle.id;
@@ -360,7 +366,6 @@
             var prin = clickedLayer
         }
         var keep_map = date + "_" + pred + "_" + prin
-        console.log(keep_map)
 
         var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
         if (visibility === 'visible') {
@@ -374,6 +379,7 @@
                 legend_div.id = legend_grouping[clickedLayer];
                 $(".map-overlay_1").append(legend_div);
                 var curr_legend = $("." + clickedLayer);
+                var slid_ind = document.getElementById('slider').value;
                 var to_make_inactive_div = $('div.map-overlay')
                     .empty();
                 var to_make_inactive_div = $('div.map-overlay-inner')
@@ -385,7 +391,8 @@
                 $('div.map-overlay-inner')
                     .filter(":empty")
                     .remove()
-                createSlider(map_div);
+
+                createSlider(map_div, slid_ind);
             }
             //up until here
             //this changes which link is active
@@ -403,7 +410,7 @@
         }
     };
     </script>
-    <!--LIBRARY ENDS-->
+    <!--Library ends-->
 </head>
 
 <body>
@@ -479,38 +486,44 @@
             }
         }]
     };
-    // Join local JSON data with vector tile geometry
+
     var keys = ["speed_mlab", "speed_477", "speed_diff", "speed_counts"];
-    var legend_grouping = { "speed_mlab": "legend_mbps", "speed_477": "legend_mbps", "speed_diff": "legend_diff" };
     var zoom_names = ["county", "state_house", "state_senate"];
-    var data_names = ["county", "house_num", "house_num"];
-    var zoomThreshold = 4;
-    var toggleableLayerIds = keys;
-    var toggleableLayerNames = ["M-Lab data", "FCC's 477 data", " Difference", "Counts"];
     var label_leg_filt = ["state_house", "state_senate"];
+    var data_names = ["county", "house_num", "house_num"];
+    var FCC_time_chunks = ["dec_14", "jun_15", "dec_15", "jun_16", "dec_16", "jun_17"];
+
+    var legend_grouping = { "speed_mlab": "legend_mbps", "speed_477": "legend_mbps", "speed_diff": "legend_diff" };
+    var toggleableLayerIds = keys;
+    
     var label_leg_filt_names = ["State House", "State Senate"];
-    var active_zoom = "state_house";
-    var active_map = "speed_mlab";
+    var toggleableLayerNames = ["M-Lab data", "FCC's 477 data", " Difference", "# of M-Lab Tests"];
+    var FCC_time_names = ["Dec 14", "Jun 15", "Dec 15", "Jun 16", "Dec 16", "Jun 17"];
+
     var speed_mlab_labels = ["Greater than 100", "40 to 100", "20 to 40", "10 to 20", "5 to 10", "0 to 5"];
     var speed_mlab_colors = ['#7a0177', '#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0', '#feebe2'];
-    var FCC_time_chunks = ["dec_14", "jun_15", "dec_15", "jun_16", "dec_16", "jun_17"];
-    var FCC_time_names = ["Dec 14", "Jun 15", "Dec 15", "Jun 16", "Dec 16", "Jun 17"];
     var speed_477_labels = speed_mlab_labels;
     var speed_477_colors = speed_mlab_colors;
     var speed_diff_labels = ["Greater than 25", "15 to 25", "5 to 15", "-5 to 5", "-15 to -5", "-25 to -15", "Less than -25"];
     var speed_diff_colors = ['#de5600', '#ff7179', '#ffa4cc', '#ffd9fe', '#ca93d5', '#8f52b1', '#49108f'];
     var speed_counts_labels = ["Greater than 1000", "400 to 1000", "180 to 400", "40 to 180", "10 to 40", "0 to 10"];
     var speed_counts_colors = ['#7a0177', '#c51b8a', '#f768a1', '#fa9fb5', '#fcc5c0', '#feebe2'];
-    var zoomed = false;
-    makeToggle(toggleableLayerIds, toggleableLayerNames, active_map, 'menu', true)
-    var starting_map = $(".legend");
-    var map_div = $(".map-overlay_1");
-    starting_map.addClass(active_map);
-    createLegend(eval(active_map + "_" + "labels"), eval(active_map + "_" + "colors"), starting_map);
-    createSlider(map_div);
 
-    //this is temp for the legislative districts stuff
-    //$.getJSON('https://storage.googleapis.com/thieme-us-query/477/full_speed_data_zcta_data_use.json', function(data) {
+    var zoomThreshold = 4;
+    var zoomed = false;
+
+    var active_date = 0;
+    var active_zoom = "state_house";
+    var active_map = "speed_mlab";
+
+    var starting_map = $(".legend");
+    starting_map.addClass(active_map);
+    var map_div = $(".map-overlay_1");
+
+    makeToggle(toggleableLayerIds, toggleableLayerNames, active_map, 'menu', true)
+    createLegend(eval(active_map + "_" + "labels"), eval(active_map + "_" + "colors"), starting_map);
+    createSlider(map_div, active_date);
+
 
     $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_county_counts_years.json', function(data) {
         var lower_json = [];
@@ -556,8 +569,6 @@
                 colorArrayTime.push(colorArray)
             }
 
-            //next thing to do is change these names in a way that doesn't break everything
-            // Add layer from the vector tile source with data-driven style
             for (var k = 0; k < FCC_time_chunks.length; k++) {
                 for (var i = 0; i < zoom_names.length; i++) {
                     for (var j = 0; j < keys.length; j++) {
@@ -570,7 +581,8 @@
                                 'minzoom': zoomThreshold,
                                 "visibility": "none",
                                 "paint": {
-                                    "fill-color": colorArrayTime[k][i][j]
+                                    "fill-color": colorArrayTime[k][i][j],
+                                    "fill-outline-color": "#cecece"
                                 }
                             }, 'waterway-label');
                         } else if (zoom_names[i] == "state_senate") {
@@ -582,7 +594,8 @@
                                 'minzoom': zoomThreshold,
                                 "visibility": "none",
                                 "paint": {
-                                    "fill-color": colorArrayTime[k][i][j]
+                                    "fill-color": colorArrayTime[k][i][j],
+                                    "fill-outline-color": "#cecece"
                                 }
                             }, 'waterway-label');
                         } else if (zoom_names[i] == "county") {
@@ -594,7 +607,8 @@
                                 'maxzoom': zoomThreshold,
                                 "visibility": "none",
                                 "paint": {
-                                    "fill-color": colorArrayTime[k][i][j]
+                                    "fill-color": colorArrayTime[k][i][j],
+                                    "fill-outline-color": "#cecece"
                                 }
                             }, 'waterway-label');
                         }
