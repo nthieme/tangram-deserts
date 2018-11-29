@@ -254,6 +254,7 @@
             var pred = $('#div_menu a').filter(".active").attr("id");
             var lab_county = FCC_time_chunks[slid_ind] + "_" + "county" + "_" + pred;
             var lab_zoom = FCC_time_chunks[slid_ind] + "_" + active_zoom + "_" + pred;
+            document.getElementById('time_chunks').textContent = FCC_time_names[slid_ind];
             map.setLayoutProperty(lab_county + "_id", 'visibility', 'visible');
             map.setLayoutProperty(lab_zoom + "_id", 'visibility', 'visible');
             turnOffOtherMaps([lab_county, lab_zoom]);
