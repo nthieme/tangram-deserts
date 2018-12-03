@@ -526,7 +526,7 @@
     createSlider(map_div, active_date);
 
 
-    $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_county_counts_years.json', function(data) {
+    $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_county_counts.json', function(data) {
         var lower_json = [];
         var upper_json = [];
         for (var i = 0; i < data["house_"].length; i++) {
