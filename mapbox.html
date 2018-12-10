@@ -159,11 +159,11 @@
             return '#de5600';
         } else if ((15 <= cat) && (cat < 25)) {
             return '#ff7179';
-        } else if ((5 <= cat) && (cat < 15)) {
+        } else if ((.01 <= cat) && (cat < 15)) {
             return '#ffa4cc';
-        } else if ((-5 <= cat) && (cat < 5)) {
+        } else if ((-.01 <= cat) && (cat < .01)) {
             return '#ffd9fe';
-        } else if ((-15 <= cat) && (cat < -5)) {
+        } else if ((-15 <= cat) && (cat < -.01)) {
             return '#ca93d5';
         } else if ((-25 <= cat) && (cat < -15)) {
             return '#8f52b1';
@@ -514,7 +514,7 @@
     var speed_muni_colors = ["#d07386"];
     var speed_477_labels = speed_mlab_labels;
     var speed_477_colors = speed_mlab_colors;
-    var speed_diff_labels = ["Greater than 25", "15 to 25", "5 to 15", "-5 to 5", "-15 to -5", "-25 to -15", "Less than -25"];
+    var speed_diff_labels = ["Greater than 25", "15 to 25", ".1 to 15", "-.01 to .01", "-15 to -.01", "-25 to -15", "Less than -25"];
     var speed_diff_colors = ['#de5600', '#ff7179', '#ffa4cc', '#ffd9fe', '#ca93d5', '#8f52b1', '#49108f'];
     var speed_diff_perc_labels = ["Greater than 5x", "2.5x to 5x", "1.5x to 2.5x", ".7x to 1.5x", ".5x to .7x", ".2x to .5x", "Less than .2x"];
     var speed_diff_perc_colors = ['#de5600', '#ff7179', '#ffa4cc', '#ffd9fe', '#ca93d5', '#8f52b1', '#49108f'];
@@ -676,6 +676,8 @@
                 }
             }
 
+            console.log(map);
+
             turnOffOtherMaps([FCC_time_chunks[0] + "_" + zoom_names[0] + "_" + active_map, FCC_time_chunks[0]+ "_" + active_zoom + "_" + active_map]);
 
             //add story popups
@@ -719,6 +721,7 @@
                     zoomed = false
                 } else {}
             });
+
             geojson_markers.features.forEach(function(marker) {
                 // create a HTML element for each feature
                 var el = document.createElement('div');
