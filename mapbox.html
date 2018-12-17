@@ -299,6 +299,7 @@
             map.setLayoutProperty(lab_county + "_id", 'visibility', 'visible');
             map.setLayoutProperty(lab_zoom + "_id", 'visibility', 'visible');
             turnOffOtherMaps([lab_county, lab_zoom]);
+            console.log(map)
         });
     }
     //creates the data-driven colors of the map. It's pretty hard-coded so whenever new variable types to display are added this needs to be updated. It doesn't though, need to be updated when filters
@@ -494,11 +495,13 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibmV3YW1lcmljYSIsImEiOiIyM3ZnYUtrIn0.57fFgg_iM7S1wLH2GQC71g';
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/light-v9',
+        style: 'mapbox://styles/newamerica/cjpn4e4df2gak2rp7nef3am21',
         center: [-99.9, 41.5],
         maxBounds: bounds,
         zoom: 3
     });
+
+    
     //popup JSON
     var geojson_markers = {
         type: 'FeatureCollection',
@@ -669,7 +672,7 @@
     makeToggle(label_leg_filt, label_leg_filt_names, active_zoom, "zoom_menu", false)
     createLegend(eval(active_map + "_" + "labels"), eval(active_map + "_" + "colors"), starting_map);
     createSlider(map_div, active_date);
-    $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_county_counts_new_agg_est.json', function(data) {
+    $.getJSON('https://storage.googleapis.com/thieme-us-query/477/mapbox_leg_county_counts_new_agg_up.json', function(data) {
         var lower_json = [];
         var upper_json = [];
         for (var i = 0; i < data["house_"].length; i++) {
@@ -731,7 +734,7 @@
                                     "fill-color": "#d07386",
                                     "fill-outline-color": "#cecece"
                                 }
-                            }, "waterway-river-canal");
+                            }, "border-admin-3-4-case");
                         } else if (zoom_names[i] == "state_house") {
                             map.on('click', FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j] + "_id", function(e) {
 
@@ -750,7 +753,7 @@
                                         "fill-color": colorArrayTime[k][i][j],
                                         "fill-outline-color": "#cecece"
                                     }
-                                }, "waterway-river-canal" //add a layer id here to insert this layer just before that one
+                                }, "border-admin-3-4-case" //add a layer id here to insert this layer just before that one
                             );
                         } else if (zoom_names[i] == "state_senate") {
                             map.on('click', FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j] + "_id", function(e) {
@@ -769,7 +772,7 @@
                                         "fill-color": colorArrayTime[k][i][j],
                                         "fill-outline-color": "#cecece"
                                     }
-                                }, "waterway-river-canal" //add a layer id here to insert this layer just before that one
+                                }, "border-admin-3-4-case" //add a layer id here to insert this layer just before that one
                             );
                         } else if (zoom_names[i] == "county") {
                             map.on('click', FCC_time_chunks[k] + "_" + zoom_names[i] + "_" + keys[j] + "_id", function(e) {
@@ -788,7 +791,7 @@
                                         "fill-color": colorArrayTime[k][i][j],
                                         "fill-outline-color": "#cecece"
                                     }
-                                }, "waterway-river-canal" //add a layer id here to insert this layer just before that one
+                                }, "border-admin-3-4-case" //add a layer id here to insert this layer just before that one
                             );
                         }
                     }
