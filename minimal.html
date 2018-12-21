@@ -572,7 +572,6 @@
     };
 
     function makeStandalone(_id, text, menu_name, action, make_legend) {
-
         var id = _id
 
         var link = document.createElement('a');
@@ -611,6 +610,10 @@
         var geo = $("#geo_menu")[0].value;
         var keep_map = date + "_" + geo + "_" + standalone_id;
         var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
+
+        if(this_Standalone.className=="active"){
+            make_legend=false
+        }
 
         //set this link to active in the zoomed case
         if (make_legend == true) {
