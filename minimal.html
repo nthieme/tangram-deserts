@@ -54,11 +54,22 @@
         border: 1px solid rgba(0,0,0,0.4);
         font-family: 'Open Sans', sans-serif;
         }
-        #muni_menu {
+        #cutoff_menu {
         background: #fff;
         position: absolute;
         z-index: 1;
         top: 200px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+        }
+        #muni_menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 250px;
         right: 10px;
         border-radius: 3px;
         width: 120px;
@@ -283,6 +294,20 @@
         }
     };
 
+    function getColorcutoff(cat) {
+        if (cat == "Both below cutoffs") {
+            return '#000004';
+        } else if (cat == "Both above cutoffs") {
+            return '#FCFDBF';
+        } else if (cat == "Download below 10 Mbps") {
+            return '#B63679';
+        } else if (cat == "Upload below 1 Mbps") {
+            return '#721F81';
+        } else {
+            '#fff';
+        }
+    };
+
 
     //simple helped functions for calculating maximums
     function getMax(arr, prop) {
@@ -336,15 +361,21 @@
     //adds functionality to an html slider. never called outside of "createSlider"
     function createSliderAction() {
         document.getElementById('slider').addEventListener('input', function(time_chunk) {
+            var cutoffs_obj_active = $("#broadband_cutoffs")[0].className; //when there are more standalones, change this to check the div for any active standalones
             var slid_ind = document.getElementById('slider').value;
             var geo = $("#geo_menu")[0].value;
-            var attribute = $("#attribute_menu")[0].value;
-            var source = $("#source_menu")[0].value;
-            var keep_map = date_ids[slid_ind] + "_" + geo + "_" + source + "_" + attribute;
+
+            if (cutoffs_obj_active == "active") { //when there are more standalones, change this to check the div for any active standalones
+                var keep_map = date_ids[slid_ind] + "_" + geo + "_" + "broadband_cutoffs";
+            } else {
+                var attribute = $("#attribute_menu")[0].value;
+                var source = $("#source_menu")[0].value;
+                var keep_map = date_ids[slid_ind] + "_" + geo + "_" + source + "_" + attribute;
+            }
 
             document.getElementById('time_chunks').textContent = date_names[slid_ind];
             map.setLayoutProperty(keep_map + "_id", 'visibility', 'visible');
-            turnOffOtherMaps([keep_map]);
+            turnOffOtherMaps(keep_map);
         });
     }
     //creates the data-driven colors of the map. It's pretty hard-coded so whenever new variable types to display are added this needs to be updated. It doesn't though, need to be updated when filters
@@ -356,6 +387,7 @@
         var expression_speed_477_up = ["match", ["get", data_name]];
         var expression_speed_diff = ["match", ["get", data_name]];
         var expression_speed_diff_up = ["match", ["get", data_name]];
+        var expression_speed_cutoffs = ["match", ["get", data_name]];
         data.forEach(function(row) {
             if (row[data_name] === undefined) {
                 //do nothing
@@ -366,6 +398,7 @@
                 var color_477_up = getColorUp(row["speed_477_up"]);
                 var color_diff = getColorcomp(row["speed_diff"]);
                 var color_diff_up = getColorcomp(row["speed_diff_up"]);
+                var color_cutoffs = getColorcutoff(row["broadband_cutoffs"]);
                 if (color_mlab == undefined) {
                     color_mlab = "rgba(211,211,211,1)";
                 } else {
@@ -396,6 +429,11 @@
                 } else {
                     //don't change anything
                 }
+                if (color_cutoffs == undefined) {
+                    color_cutoffs = "rgba(211,211,211,1)";
+                } else {
+                    //don't change anything
+                }
 
 
                 expression_speed_mlab.push(row[data_name], color_mlab);
@@ -404,6 +442,7 @@
                 expression_speed_477_up.push(row[data_name], color_477_up);
                 expression_speed_diff.push(row[data_name], color_diff);
                 expression_speed_diff_up.push(row[data_name], color_diff_up);
+                expression_speed_cutoffs.push(row[data_name], color_cutoffs);
             }
         });
         expression_speed_mlab.push("rgba(211,211,211,1)");
@@ -412,47 +451,48 @@
         expression_speed_477_up.push("rgba(211,211,211,1)");
         expression_speed_diff.push("rgba(211,211,211,1)");
         expression_speed_diff_up.push("rgba(211,211,211,1)");
+        expression_speed_cutoffs.push("rgba(211,211,211,1)");
         return ([
-            [expression_speed_mlab, expression_speed_mlab_up],
+            [expression_speed_mlab, expression_speed_mlab_up, expression_speed_cutoffs],
             [expression_speed_477, expression_speed_477_up],
             [expression_speed_diff, expression_speed_diff_up]
         ])
     }
     //this function makes invisible data layers that aren't provided as input. That's the trick of how this app styles the map.
-    function turnOffOtherMaps(current_maps) {
-        if (Array.isArray(current_maps) == false) {
-            if (current_maps.endsWith("speed_muni")) {
+    function turnOffOtherMaps(current_map) {
 
-            } else {
-                for (var k = 0; k < date_ids.length; k++) {
-                    for (var i = 0; i < geo_ids.length; i++) {
-                        for (var j = 0; j < source_ids.length; j++) {
-                            for (var l = 0; l < attribute_ids.length; l++) {
-                                var map_name = date_ids[k] + "_" + geo_ids[i] + "_" + source_ids[j] + "_" + attribute_ids[l]
-                                if ($.inArray(map_name, current_maps) < 0) {
-                                    map.setLayoutProperty(map_name + "_id", 'visibility', 'none')
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        //this layer stays on top of other layers so don't remove the other maps
+        if (current_map.endsWith("speed_muni")) {
+
         } else {
+            //turn off main maps
             for (var k = 0; k < date_ids.length; k++) {
                 for (var i = 0; i < geo_ids.length; i++) {
                     for (var j = 0; j < source_ids.length; j++) {
                         for (var l = 0; l < attribute_ids.length; l++) {
                             var map_name = date_ids[k] + "_" + geo_ids[i] + "_" + source_ids[j] + "_" + attribute_ids[l]
-                            if ($.inArray(map_name, current_maps) < 0) {
+                            if (map_name != current_map) {
                                 map.setLayoutProperty(map_name + "_id", 'visibility', 'none')
                             }
                         }
                     }
                 }
             }
-        }
 
+            //turn off cutoff maps
+            for (var k = 0; k < date_ids.length; k++) {
+                for (var i = 0; i < geo_ids.length; i++) {
+                    var map_name = date_ids[k] + "_" + geo_ids[i] + "_broadband_cutoffs"
+                    if (map_name != current_map) {
+                        map.setLayoutProperty(map_name + "_id", 'visibility', 'none')
+                    }
+
+                }
+
+            }
+        }
     }
+
     //creates the html toggle bars that appear on the right of the map
     function makeToggle(toggleIDs, toggleableLayerNames, active_level, id_name, make_legend) {
         var select = document.getElementById(id_name);
@@ -469,16 +509,42 @@
 
     //similar to the two functions used to create the slider, the html object and the mechanics of the object are created by two separate functions. This creates the mechanics
     function createToggleMechanics(this_Toggle, make_legend) {
-        var zoom = map.getZoom();
+        var cutoffs_obj_active = $("#broadband_cutoffs")[0].className;
         var clickedLayer = this_Toggle.value;
         date_ind = document.getElementById('slider').value
         var date = date_ids[date_ind];
         var geo = $("#geo_menu")[0].value;
         var attribute = $("#attribute_menu")[0].value;
         var source = $("#source_menu")[0].value;
-        var keep_map = date + "_" + geo + "_" + source + "_" + attribute;
 
-        var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
+        if (cutoffs_obj_active == "active") { //when there are more standalones, change this to check the div for any active standalones
+            var keep_map = date + "_" + geo + "_" + "broadband_cutoffs";
+            if ($.inArray(clickedLayer, standalone_admissible_toggles["broadband_cutoffs"]) >-1) { //change the broadband_cutoffs to the name of the variable that has the active standalone
+                //this changes which link is active
+                turnOffOtherMaps(keep_map);
+                //this makes the newly active layer visible
+                map.setLayoutProperty(keep_map + "_id", 'visibility', 'visible');
+                this_Toggle.className = 'active';
+            } else {
+                var keep_map = date + "_" + geo + "_" + source + "_" + attribute;
+                var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
+                //this changes which link is active
+                turnOffOtherMaps(keep_map);
+                //this makes the newly active layer visible
+                map.setLayoutProperty(keep_map + "_id", 'visibility', 'visible');
+                this_Toggle.className = 'active';
+                $("#broadband_cutoffs")[0].className="";
+            }
+
+        } else {
+            var keep_map = date + "_" + geo + "_" + source + "_" + attribute;
+            var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
+            //this changes which link is active
+            turnOffOtherMaps(keep_map);
+            //this makes the newly active layer visible
+            map.setLayoutProperty(keep_map + "_id", 'visibility', 'visible');
+            this_Toggle.className = 'active';
+        }
 
         //set this link to active in the zoomed case
         if (make_legend == true) {
@@ -502,6 +568,72 @@
                 .remove()
             createSlider(map_div, slid_ind);
         }
+
+    };
+
+    function makeStandalone(_id, text, menu_name, action, make_legend) {
+
+        var id = _id
+
+        var link = document.createElement('a');
+        link.href = '#';
+        link.id = _id
+        link.className = '';
+        link.textContent = text;
+
+        if (action == true) {
+            link.onclick = function() { createStandaloneAction(this, _id, make_legend) };
+        } else {
+            link.onclick = function(e) {
+
+                var clickedLayer = this.id;
+                var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+                if (visibility === 'visible') {
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                    this.className = '';
+                } else {
+                    this.className = 'active';
+                    map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+                }
+            };
+            map.setLayoutProperty(_id, 'visibility', 'none');
+        }
+        var layers = document.getElementById(menu_name);
+        layers.appendChild(link);
+
+    }
+
+    function createStandaloneAction(this_Standalone, standalone_id, make_legend) {
+        var clickedLayer = this_Standalone.id
+        date_ind = document.getElementById('slider').value
+        var date = date_ids[date_ind];
+        var geo = $("#geo_menu")[0].value;
+        var keep_map = date + "_" + geo + "_" + standalone_id;
+        var visibility = map.getLayoutProperty(keep_map + "_id", 'visibility');
+
+        //set this link to active in the zoomed case
+        if (make_legend == true) {
+            //this is the legend section
+            var legend_div = document.createElement("div");
+            legend_div.className = "map-overlay legend" + " " + clickedLayer;
+            legend_div.id = legend_grouping[clickedLayer];
+            $(".map-overlay_1").append(legend_div);
+            var curr_legend = $("." + clickedLayer);
+            var slid_ind = document.getElementById('slider').value;
+            var to_make_inactive_div = $('div.map-overlay')
+                .empty();
+            var to_make_inactive_div = $('div.map-overlay-inner')
+                .empty();
+            createLegend(eval(legend_dict[clickedLayer] + "_" + "labels"), eval(legend_dict[clickedLayer] + "_" + "colors"), curr_legend);
+            $('div.map-overlay')
+                .filter(":empty")
+                .remove()
+            $('div.map-overlay-inner')
+                .filter(":empty")
+                .remove()
+            createSlider(map_div, slid_ind);
+        }
         //up until here
         //this changes which link is active
         turnOffOtherMaps(keep_map);
@@ -510,10 +642,75 @@
         for (var j = 0; j < geo_ids.length; j++) {
             map.setLayoutProperty(keep_map + "_id", 'visibility', 'visible');
         }
-        this_Toggle.className = 'active';
 
-    };
+        this_Standalone.className = 'active';
+    }
 
+    function loadStandalone(standalone_id, source_ind, attribute_ind) {
+        for (var k = 0; k < date_ids.length; k++) {
+            for (var i = 0; i < geo_ids.length; i++) {
+                if (geo_ids[i] == "state_house") {
+                    map.on('click', date_ids[k] + "_" + geo_ids[i] + "_" + standalone_id + "_id", function(e) {
+
+                        new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML("<p>State House district:" + e.features[0].properties.house_num + "</p>")
+                            .addTo(map);
+                    });
+                    map.addLayer({
+                            "id": date_ids[k] + "_" + geo_ids[i] + "_" + standalone_id + "_id",
+                            "type": "fill",
+                            "source": "legislative_lower_state",
+                            "source-layer": "full_speed_data_census_leg_lo-1ltr3a",
+                            "visibility": "none",
+                            "paint": {
+                                "fill-color": colorArrayTime[k][i][source_ind][attribute_ind],
+                                "fill-outline-color": "#cecece"
+                            }
+                        }, "water" //add a layer id here to insert this layer just before that one
+                    );
+                } else if (geo_ids[i] == "state_senate") {
+                    map.on('click', date_ids[k] + "_" + geo_ids[i] + "_" + standalone_id + "_id", function(e) {
+                        new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML("<p>State Senate district:" + e.features[0].properties.house_num + "</p>")
+                            .addTo(map);
+                    });
+                    map.addLayer({
+                            "id": date_ids[k] + "_" + geo_ids[i] + "_" + standalone_id + "_id",
+                            "type": "fill",
+                            "source": "legislative_upper_state",
+                            "source-layer": "full_speed_data_census_leg_up-39wwkk",
+                            "visibility": "none",
+                            "paint": {
+                                "fill-color": colorArrayTime[k][i][source_ind][attribute_ind],
+                                "fill-outline-color": "#cecece"
+                            }
+                        }, "water" //add a layer id here to insert this layer just before that one
+                    );
+                } else if (geo_ids[i] == "county") {
+                    map.on('click', date_ids[k] + "_" + geo_ids[i] + "_" + standalone_id + "_id", function(e) {
+                        new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML("<p>County:" + e.features[0].properties.county + "</p>")
+                            .addTo(map);
+                    });
+                    map.addLayer({
+                            "id": date_ids[k] + "_" + geo_ids[i] + "_" + standalone_id + "_id",
+                            "type": "fill",
+                            "source": "county",
+                            "source-layer": "full_speed_data_census_base_use",
+                            "visibility": "none",
+                            "paint": {
+                                "fill-color": colorArrayTime[k][i][source_ind][attribute_ind],
+                                "fill-outline-color": "#cecece"
+                            }
+                        }, "water" //add a layer id here to insert this layer just before that one
+                    );
+                }
+            }
+        }
+    }
     //This function is used to split up layer loading so that some amount of map shows up quickly while the others load
     function loadLayers(time_lower, time_upper, geo_lower, geo_upper, source_lower, source_upper, attribute_lower, attribute_upper) {
         for (var k = time_lower; k < time_upper; k++) {
@@ -593,6 +790,7 @@
         <select id="source_menu" class="menu"></select>
         <select id="attribute_menu" class="menu"></select>
         <select id="geo_menu" class="menu"></select>
+        <nav id="cutoff_menu" class="menu"></nav>
         <nav id="muni_menu" class="menu"></nav>
     </div>
     <div id='map'></div>
@@ -686,12 +884,10 @@
     var date_names = ["Dec 2014", "Jun 2015", "Dec 2015", "Jun 2016", "Dec 2016", "Jun 2017"];
     var attribute_names = ["Download", "Upload"]
 
-    var legend_grouping = { "MLab_DL": "legend_mbps", "MLab_UL": "legend_mbps", "FCC_DL": "legend_mbps", "FCC_UL": "legend_mbps" }; //need to add in others
+    var legend_grouping = { "MLab_DL": "legend_mbps", "MLab_UL": "legend_mbps", "FCC_DL": "legend_mbps", "FCC_UL": "legend_mbps", "broadband_cutoffs": "legend_mbps" }; //need to add in others
 
-    var legend_names = { "MLab_DL": "legend_mbps", "MLab_UL": "legend_mbps", "FCC_DL": "legend_mbps", "FCC_UL": "legend_mbps", "Diff_DL": "legend_diff", "Diff_UL": "legend_diff"};
-
-    var legend_dict = { "MLab_DL": "DL", "MLab_UL": "UL", "FCC_DL": "DL", "FCC_UL": "UL", "Diff_DL": "Diff_DL", "Diff_UL": "Diff_UL"};
-
+    var legend_dict = { "MLab_DL": "DL", "MLab_UL": "UL", "FCC_DL": "DL", "FCC_UL": "UL", "Diff_DL": "Diff_DL", "Diff_UL": "Diff_UL", "broadband_cutoffs": "broadband_cutoffs" };
+    var standalone_admissible_toggles = { "broadband_cutoffs": ["county", "state_senate", "state_house"] } //this is a nice way to enable and disable toggles for standalones
 
     var DL_labels = ["Greater than 100 Mbps", "100 to 50 ", "25 to 50", "10 to 25", "4 to 10", "200 Kbps to 4 Mbps", "Less than 200 Kbps"];
     var DL_colors = ['#034e7b', '#0570b0', '#3690c0', '#74a9cf', '#a6bddb', '#d0d1e6', '#ece7f2'];
@@ -709,7 +905,8 @@
     var speed_muni_labels = ["Has municipal broadband"];
     var speed_muni_colors = ["#d07386"];
 
-
+    var broadband_cutoffs_labels = ["Both above cutoffs", "Download below 10 Mbps", "Upload below 1 Mbps", "Both below cutoffs"]
+    var broadband_cutoffs_colors = ['#FCFDBF', '#B63679', "#721F81", "#000004"]
 
     var center_array = [
         ["Alabama", [32.806671, -86.791130]],
@@ -795,21 +992,6 @@
 
     });
 
-    var first_set_loaded = {
-        aInternal: "not loaded",
-        aListener: function(val) {},
-        set a(val) {
-            this.aInternal = val;
-            this.aListener(val);
-        },
-        get a() {
-            return this.aInternal;
-        },
-        registerListener: function(listener) {
-            this.aListener = listener;
-        }
-    };
-
     var colorArrayTime = [];
     var global_data = [];
     var is_loaded = false;
@@ -873,7 +1055,7 @@
                 }
                 colorArrayTime.push(colorArray)
             }
-            console.log(colorArrayTime)
+
             loadLayers(0, 1, 0, 1, 0, 1, 0, 1);
 
             is_loaded = true
@@ -891,6 +1073,12 @@
                     loadLayers(0, date_ids.length, 0, geo_ids.length, 0, source_ids.length, 0, attribute_ids.length);
 
                     //adding in standalone maps that don't fit into the above
+
+                    //Broadband cutoffs
+                    loadStandalone("broadband_cutoffs", 0, 2) //0 for MLab because it comes first in the colorArray at depth 2, 2 for Cutoff because it comes third in the MLab array at depth 3
+                    makeStandalone("broadband_cutoffs", "Broadband Cutoffs", "cutoff_menu", true, true)
+
+                    //Muni layer
                     map.addLayer({
                         "id": "muni_networks",
                         "type": "fill",
@@ -903,32 +1091,9 @@
                         }
                     }, "border-admin-3-4-case");
 
-                    var id = "muni_networks"
+                    makeStandalone("muni_networks", "Municipal Broadband", "muni_menu", false, false)
 
-                    var link = document.createElement('a');
-                    link.href = '#';
-                    link.id = "muni_networks"
-                    link.className = '';
-                    link.textContent = "Municipal Networks";
-
-                    link.onclick = function(e) {
-
-                        var clickedLayer = this.id;
-                        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-
-                        if (visibility === 'visible') {
-                            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-                            this.className = '';
-                        } else {
-                            this.className = 'active';
-                            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-                        }
-                    };
-                    var layers = document.getElementById('muni_menu');
-                    layers.appendChild(link);
-                    map.setLayoutProperty("muni_networks", 'visibility', 'none');
-
-                    turnOffOtherMaps([date_ids[0] + "_" + geo_ids[0] + "_" + source_ids[0] + "_" + attribute_ids[0]]); //this line was changed
+                    turnOffOtherMaps(date_ids[0] + "_" + geo_ids[0] + "_" + source_ids[0] + "_" + attribute_ids[0]);
 
                     //add story popups
                     //make story popups work
