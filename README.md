@@ -1,52 +1,52 @@
 ## BQ Tables
 The BQ tables that are needed to run the pipeline all live in the thieme dataset inside the mlab-sandbox project. Many of the tables below have two names. This is because I did a bad job of naming them the first time around. The new, more regular names are the ones outside the parentheses. The older names are inside the parentheses. The reason I’m giving both is that BQ doesn’t allow for renaming tables, you have to copy the table to rename it. However, BQ also has a great record system that lets you follow the chain of what table was used to produce another table. Since those record use the original names, I’m keeping both for pipeline auditing purposes. 
 
-- mlab-sandbox
-  - thieme
-- Polygons_census_tract (Original: tract_state)
-  - Stringified census tract polygons for dataflow
-- US_loc 
-  - table containing the unique locations of the NDT tables as of August 17th, 2018.
-- dataflow_output_census_tract (Original: dataflow_DL)
-  - table containing the unique locations of the NDT tables and their corresponding census tract as of August 20th 2018
-- ndt_spatial_census_tract (Original: ndt_spatial)
-  - copy of US NDT download table with corresponding state house district, as of Aug 31st, 2018
-- Aggregated_MLab_DL_census (Original: dataflow_county_final_copy)
-  - Aggregated M-Lab download and RTT data by census tract as of Dec 13, 2018
-- Aggregated_MLab_UL_census (Original: test_UL)
-  - Aggregated M-Lab upload data by census tract as of Dec 13, 2018
-- Polygons_state_house (Original: dataflow_larger_area_poly_house)
-  - Stringified house district polygons for dataflow
-- dataflow_output_state_house (Original: dataflow_mapbox_lower_DL_new_1_area_mult)
-  - table containing the unique locations of the NDT tables and their corresponding state house district as of Dec 12th 2018
-- ndt_spatial_state_house (Original: dataflow_lower_test_int_final)
-  - copy of US NDT download table with corresponding state house district, as of Dec 13, 2018
-- Aggregated_MLab_DL_state_house (Original: dataflow_lower_test_final)
-  - Aggregated M-Lab download and RTT data by state house as of Dec 13, 2018
-- Aggregated_MLab_UL_state_house (Original: mixed_house)
-  - Aggregated M-Lab upload data by state house as of Dec 20, 2018
-- Polygons_state_senate (Original: dataflow_larger_area_poly_senate)
-  - Stringified senate district polygons for dataflow
-- dataflow_output_state_senate (Original: dataflow_mapbox_upper_DL_new_1_area_mult)
-  - table containing the unique locations of the NDT tables and their corresponding state senate district as of Dec 12th 2018
-- ndt_spatial_state_senate (Original: dataflow_upper_final_int)
-  - copy of US NDT download table with corresponding state house district, as of Dec 20, 2018
-- Aggregated_MLab_DL_state_senate (Original: dataflow_upper_final)
-  - Aggregated M-Lab download and RTT data by state senate as of Dec 13, 2018
-- Aggregated_MLab_UL_state_senate (Original: UL_test_senate_joined)
-  - Aggregated M-Lab upload data by state house as of Dec 13, 2018
-- 477_dec_2014
-  - The full FCC 477 table from December 2014
-- 477_jun_2015
-  - The full FCC 477 table from Jun 2015
-- 477_dec_2015
-  - The full FCC 477 table from December 2015
-- 477_jun_2016
-  - The full FCC 477 table from June 2016
-- 477_dec_2016
-  - The full FCC 477 table from December 2016
-- 477_jun_2017
-  - The full FCC 477 table from June 2017
+- `mlab-sandbox`
+  - `thieme`
+     - `Polygons_census_tract` (Original: tract_state)
+        - Stringified census tract polygons for dataflow
+     - `US_loc`
+        - table containing the unique locations of the NDT tables as of August 17th, 2018.
+     - `dataflow_output_census_tract` (Original: dataflow_DL)
+        - table containing the unique locations of the NDT tables and their corresponding census tract as of August 20th 2018
+     - `ndt_spatial_census_tract` (Original: ndt_spatial)
+        - copy of US NDT download table with corresponding state house district, as of Aug 31st, 2018
+     - `Aggregated_MLab_DL_census` (Original: dataflow_county_final_copy)
+        - Aggregated M-Lab download and RTT data by census tract as of Dec 13, 2018
+     - `Aggregated_MLab_UL_census` (Original: test_UL)
+        - Aggregated M-Lab upload data by census tract as of Dec 13, 2018
+     - `Polygons_state_house` (Original: dataflow_larger_area_poly_house)
+        - Stringified house district polygons for dataflow
+     - `dataflow_output_state_house` (Original: dataflow_mapbox_lower_DL_new_1_area_mult)
+        - table containing the unique locations of the NDT tables and their corresponding state house district as of Dec 12th 2018
+     - `ndt_spatial_state_house` (Original: dataflow_lower_test_int_final)
+        - copy of US NDT download table with corresponding state house district, as of Dec 13, 2018
+     - `Aggregated_MLab_DL_state_house` (Original: dataflow_lower_test_final)
+        - Aggregated M-Lab download and RTT data by state house as of Dec 13, 2018
+     - `Aggregated_MLab_UL_state_house` (Original: mixed_house)
+        - Aggregated M-Lab upload data by state house as of Dec 20, 2018
+     - `Polygons_state_senate` (Original: dataflow_larger_area_poly_senate)
+        - Stringified senate district polygons for dataflow
+     - `dataflow_output_state_senate` (Original: dataflow_mapbox_upper_DL_new_1_area_mult)
+        - table containing the unique locations of the NDT tables and their corresponding state senate district as of Dec 12th 2018
+     - `ndt_spatial_state_senate` (Original: dataflow_upper_final_int)
+        - copy of US NDT download table with corresponding state house district, as of Dec 20, 2018
+     - `Aggregated_MLab_DL_state_senate` (Original: dataflow_upper_final)
+        - Aggregated M-Lab download and RTT data by state senate as of Dec 13, 2018
+     - `Aggregated_MLab_UL_state_senate` (Original: UL_test_senate_joined)
+        - Aggregated M-Lab upload data by state house as of Dec 13, 2018
+     - `477_dec_2014`
+        - The full FCC 477 table from December 2014
+     - `477_jun_2015`
+        - The full FCC 477 table from Jun 2015
+     - `477_dec_2015`
+        - The full FCC 477 table from December 2015
+     - `477_jun_2016`
+        - The full FCC 477 table from June 2016
+     - `477_dec_2016`
+        - The full FCC 477 table from December 2016
+     - `477_jun_2017`
+        - The full FCC 477 table from June 2017
 
 ## Adding a new dataset to the Mapbox map. 
 1. _If you need to add new geographic region:_
@@ -56,11 +56,11 @@ The BQ tables that are needed to run the pipeline all live in the thieme dataset
         2. In code block [5], project, staging location, temp_location, and setup_file should be changed to the user’s locations. Likewise, machine-type, disk_size_gb, and num_workers should be set within the user’s financial constraints. 
         3. In code block [6], table and dataset should be set to the name of the table and dataset containing the polygons from step 1 above. 
         4. In code block [7], table and dataset should be set to the desired name for the output table of unique locations joined with geographic regions like `thieme.dataflow_output_census_tract`
-     3. Run the first SQL query in opentechinstitute/SOTI/SQL_queries replacing “DATAFLOW_OUTPUT_TABLE” with the name of the BQ table produced by 1.2. above. This query has to be saved to a table because the output is too large to display directly. This produces tables that are copies of the NDT table with an additional variable corresponding to the census district like “ndt_spatial_census_tract” above. 
-     4. Run the second SQL query in opentechinstitute/SOTI/SQL_queries replacing “OUTPUT_OF_ONE” with the name of the BQ table produced by 1.3. This query has to be saved to a table because the output is too large to display directly. This produces tables containing aggregated statistics to be used in R like “Aggregated_MLab_DL_census” above.
+     3. Run the first SQL query in opentechinstitute/SOTI/SQL_queries replacing “DATAFLOW_OUTPUT_TABLE” with the name of the BQ table produced by 1.ii. above. This query has to be saved to a table because the output is too large to display directly. This produces tables that are copies of the NDT table with an additional variable corresponding to the census district like “ndt_spatial_census_tract” above. 
+     4. Run the second SQL query in opentechinstitute/SOTI/SQL_queries replacing “OUTPUT_OF_ONE” with the name of the BQ table produced by 1.iii. This query has to be saved to a table because the output is too large to display directly. This produces tables containing aggregated statistics to be used in R like “Aggregated_MLab_DL_census” above.
 2. _Adding new data to the JSON file output in R:_
 
-The R script “mapbox_pipeline_wrapper.R” outputs a JSON file that Mapbox uses to populate a 	map. The structure of the JSON is {county, leg:{house, senate}} and this structure is created 	from line 300 on. There are different kinds of new data you could add to this JSON and you follow slightly different processes for each. 
+The R script “mapbox_pipeline_wrapper.R” outputs a JSON file that Mapbox uses to populate a map. The structure of the JSON is {county, leg:{house, senate}} and this structure is created from line 300 on. There are different kinds of new data you could add to this JSON and you follow slightly different processes for each. 
 
    1. _To add a new data type to an existing set of geographic regions:_	
        1. Aggregate the data type by FCC data release (June 2015, December 2015,…) and geographic region. Do this in one variable for county and one variable for state house/state senate. 
@@ -69,7 +69,7 @@ The R script “mapbox_pipeline_wrapper.R” outputs a JSON file that Mapbox use
        4. The JSON resulting from running the pipeline after making these changes will have the new data.
    2. _To add a new geographic type:_
        1. Write a SQL query that imports the new data similar to the ones at the beginning of “post_dataflow_dataset_import.R” 
-       2. Load the geographic data that was stringified in step 1.1 to make the dataflow input. The data should come as a shapefile. In the existing cases, they are census shapefiles that came from tidycensus in R. 
+       2. Load the geographic data that was stringified in step 1.i to make the dataflow input. The data should come as a shapefile. In the existing cases, they are census shapefiles that came from tidycensus in R. 
        3. Once the desired data is in, the goal is to create a data layer and a map layer from this data. To make the data layer, follow lines 67-102 or lines 162-203. 67-102 provide a good example of aggregating FCC and M-Lab data for county shapefiles. 162-203 do the same thing for state house/state senate. Both code chunks do similar things and making the data layer for the new geographies will repeat this code. Create a data frame like on line 284, containing the new data.
        4. The data layer is output as a JSON with a particular structure. Currently, it is {county, leg: {state house, state senate}}. New geographies should be added as {county, leg: {state house, state senate}, new geo}. Lines 303-312 create the nested JSON.
           1. First, turn the data frame into a JSON.
